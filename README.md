@@ -8,11 +8,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        
         body { 
             background: #f8f9fa; 
             margin: 0; 
-            /* 關鍵修正：幫手機頂部與底部留出安全精準的呼吸空間，不和動態島打架 */
             padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 20px) 20px; 
             display: flex; 
             flex-direction: column; 
@@ -21,7 +19,6 @@
             color: #1a1a1a; 
             user-select: none; 
         }
-        
         .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; }
         .nav { display: flex; gap: 6px; background: #e9ecef; padding: 4px; border-radius: 12px; }
         .nav button { flex: 1; padding: 12px; border: none; border-radius: 8px; background: transparent; font-size: 14px; font-weight: bold; color: #6c757d; cursor: pointer; }
@@ -149,4 +146,17 @@
         displayList.forEach(w => {
             const item = document.createElement('div'); item.className = 'list-item';
             let statusBadge = w.status === 'circle' ? '● 懂了' : (w.status === 'delta' ? '▲ 不熟' : '新加入');
-            item.innerHTML = `<div class="list-info"><div class="list-word">${w.word}</div><div class="list-details">唸法: ${w.pronounce} | 中文: ${
+            item.innerHTML = `<div class="list-info"><div class="list-word">${w.word}</div><div class="list-details">唸法: ${w.pronounce} | 中文: ${w.trans} (${statusBadge})</div></div><button class="btn-delete" data-id="${w.id}">刪除</button>`;
+            container.appendChild(item);
+        });
+        container.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.onclick = (e) => {
+                const id = Number(e.target.dataset.id);
+                showCustomConfirm('刪除單字', '確定要刪除這筆單字嗎？', () => { words = words.filter(w => w.id !== id); saveToStorage(); renderList(); });
+            };
+        });
+    }
+    switchView('review');
+</script>
+</body>
+</html>
