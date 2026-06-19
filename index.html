@@ -9,21 +9,23 @@
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f0f0; margin: 0; padding: 60px 20px 20px 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #333; }
-        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; }
+        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; }
         
-        .nav { display: flex; gap: 4px; background: #e0e0e0; padding: 4px; border-radius: 14px; }
-        .nav button { flex: 1; padding: 12px 4px; border: none; border-radius: 10px; background: transparent; font-size: 14px; font-weight: bold; color: #666; cursor: pointer; }
+        .nav { display: flex; gap: 3px; background: #e0e0e0; padding: 4px; border-radius: 14px; width: 100%; }
+        .nav button { flex: 1; padding: 12px 2px; border: none; border-radius: 10px; background: transparent; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; white-space: nowrap; }
         .nav button.active { background: white; color: #1a1a1a; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         
-        .card-view, .input-view, .list-view, .quiz-view { background: white; border-radius: 24px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 440px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #eee; position: relative; }
+        .card-view, .input-view, .list-view, .quiz-view, .sentence-view { background: white; border-radius: 24px; padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 460px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #eee; position: relative; }
         .hidden { display: none !important; }
         
-        .flashcard { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 12px; margin-bottom: 20px; }
-        .card-row { width: 100%; padding: 14px; background: #fafafa; border-radius: 14px; border: 1px solid #eaeaea; position: relative; }
+        .flashcard { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 10px; margin-bottom: 15px; }
+        .card-row { width: 100%; padding: 12px; background: #fafafa; border-radius: 14px; border: 1px solid #eaeaea; position: relative; }
         .label-text { font-size: 11px; color: #999; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; letter-spacing: 0.5px; }
-        .word-present { font-size: 28px; font-weight: bold; color: #1a1a1a; word-break: break-word; }
-        .word-pronounce { font-size: 20px; font-weight: bold; color: #555; word-break: break-word; }
-        .word-trans { font-size: 20px; color: #444; word-break: break-word; }
+        .word-present { font-size: 24px; font-weight: bold; color: #1a1a1a; word-break: break-word; }
+        .word-pronounce { font-size: 19px; font-weight: bold; color: #555; word-break: break-word; }
+        .word-trans { font-size: 19px; color: #444; word-break: break-word; }
+        
+        .tag-badge { display: inline-block; padding: 3px 8px; background: #333; color: white; border-radius: 6px; font-size: 11px; font-weight: bold; margin-top: 4px; }
         
         .btn-speak { background: #e0e0e0; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; margin-left: 8px; vertical-align: middle; }
         
@@ -32,14 +34,12 @@
         .btn-delta { background: #eee; color: #333; border-color: #ccc; }
         .btn-circle { background: #fff; color: #333; border-color: #333; }
         
-        .form-container { display: flex; flex-direction: column; gap: 12px; flex: 1; justify-content: center; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-container { display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: center; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
         .form-group label { font-size: 13px; font-weight: bold; color: #555; }
-        .form-group input { padding: 14px; border: 2px solid #ddd; border-radius: 12px; font-size: 16px; outline: none; color: #333; background: #fafafa; }
-        .form-group input:focus { border-color: #333; background: white; }
+        .form-group input, .form-group select { padding: 12px; border: 2px solid #ddd; border-radius: 12px; font-size: 15px; outline: none; color: #333; background: #fafafa; width: 100%; }
         
         .quiz-input { width: 100%; padding: 14px; border: 2px solid #333; border-radius: 12px; font-size: 18px; text-align: center; outline: none; font-weight: bold; margin-top: 10px; }
-        
         .quiz-result-box { margin-top: 10px; padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 16px; display: none; }
         .quiz-result-success { background: #e8f5e9; color: #2e7d32; }
         .quiz-result-fail { background: #ffebee; color: #c62828; }
@@ -47,52 +47,48 @@
         .btn-submit { background: #333; color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
         .stats { font-size: 12px; color: #888; text-align: center; font-weight: 500; }
         
-        .list-wrapper { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-        .list-container { flex: 1; overflow-y: auto; max-height: 320px; display: flex; flex-direction: column; gap: 10px; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: #f9f9f9; border-radius: 14px; border: 1px solid #eaeaea; }
-        .list-info { display: flex; flex-direction: column; gap: 4px; max-width: 60%; }
-        .list-word { font-weight: bold; font-size: 16px; color: #1a1a1a; word-break: break-word; }
+        .filter-bar { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; width: 100%; }
+        .btn-filter { padding: 6px 12px; border: 1px solid #ccc; background: white; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: bold; color: #555; }
+        .btn-filter.active { background: #333; color: white; border-color: #333; }
+        
+        .list-container { flex: 1; overflow-y: auto; max-height: 280px; display: flex; flex-direction: column; gap: 10px; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9f9f9; border-radius: 14px; border: 1px solid #eaeaea; }
+        .list-info { display: flex; flex-direction: column; gap: 2px; max-width: 55%; }
+        .list-word { font-weight: bold; font-size: 15px; color: #1a1a1a; word-break: break-word; }
         .list-details { font-size: 12px; color: #666; word-break: break-word; }
         .list-btns { display: flex; gap: 4px; align-items: center; }
-        .btn-edit-item { background: #e0e0e0; color: #333; border: none; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .btn-delete-item { background: #ff4d4d; color: white; border: none; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        
+        .btn-star { background: transparent; border: none; font-size: 18px; cursor: pointer; padding: 4px; }
+        .btn-edit-item { background: #e0e0e0; color: #333; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-delete-item { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        
+        .backup-section { display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd; }
+        .btn-backup { flex: 1; background: #777; color: white; border: none; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; }
         
         .toast-animation { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(0.7); background: rgba(26, 26, 26, 0.95); color: #ffffff; padding: 16px 32px; border-radius: 50px; font-size: 22px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.15); pointer-events: none; opacity: 0; white-space: nowrap; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
         .toast-animation.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
-        /* 老師反饋圖片：鎖定在手機螢幕最正中央，尺寸精準為 3cm x 3cm 浮動層 */
-        .teacher-overlay {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 3cm;
-            height: 3cm;
-            object-fit: cover;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-            z-index: 10000; /* 確保浮在最上層，不擋住下方的字 */
-            display: none;
-            pointer-events: none; /* 防止點擊干擾 */
-        }
     </style>
 </head>
 <body>
 
 <div id="toast" class="toast-animation"></div>
 
-<img id="teacher-pic" class="teacher-overlay" src="" alt="Teacher Feedback">
-
 <div class="container">
+    <!-- 導覽頁籤 -->
     <div class="nav">
         <button id="nav-review" class="active" onclick="switchView('review')">複習</button>
         <button id="nav-quiz" onclick="switchView('quiz')">測驗</button>
+        <button id="nav-sentence" onclick="switchView('sentence')">造句</button>
         <button id="nav-add" onclick="switchView('add')">新增</button>
         <button id="nav-list" onclick="switchView('list')">清單</button>
     </div>
 
+    <!-- 1. 複習模式 -->
     <div id="view-review" class="card-view">
-        <div class="stats" id="stats-text">載入中...</div>
+        <div>
+            <div class="stats" id="stats-text">載入中...</div>
+            <div class="filter-bar" id="review-filter-bar" style="justify-content: center; margin-top: 6px;"></div>
+        </div>
         <div class="flashcard">
             <div class="card-row">
                 <div class="label-text">單字 / 句子</div>
@@ -100,6 +96,7 @@
                     <span class="word-present" id="card-word">Work</span>
                     <button class="btn-speak" onclick="speakText('card-word')">🔊</button>
                 </div>
+                <div id="card-tag-wrapper"><span class="tag-badge" id="card-tag">工作</span></div>
             </div>
             <div class="card-row"><div class="label-text">空耳唸法</div><div class="word-pronounce" id="card-pronounce">沃克</div></div>
             <div class="card-row"><div class="label-text">中文意思</div><div class="word-trans" id="card-trans">工作</div></div>
@@ -110,15 +107,23 @@
         </div>
     </div>
 
+    <!-- 2. 智慧測驗模式 -->
     <div id="view-quiz" class="quiz-view hidden">
-        <div class="stats" id="quiz-stats-text">測驗準備中...</div>
+        <div>
+            <div class="stats" id="quiz-stats-text">測驗準備中...</div>
+            <div class="stats" id="quiz-score-text" style="color: #2e7d32; margin-top: 2px;">本日戰績：0 答對 / 0 總題</div>
+        </div>
         <div class="flashcard">
-            <div class="card-row"><div class="label-text">中文意思提示</div><div class="word-trans" id="quiz-trans">工作</div></div>
+            <div class="card-row">
+                <div class="label-text">中文意思提示</div>
+                <div class="word-trans" id="quiz-trans">工作</div>
+                <div><span class="tag-badge" id="quiz-tag">工作</span></div>
+            </div>
             <div class="card-row">
                 <div class="label-text">空耳唸法提示</div>
                 <div style="display: flex; align-items: center; justify-content: center;">
                     <span class="word-pronounce" id="quiz-pronounce">沃克</span>
-                    <button class="btn-speak" id="quiz-speak-btn" onclick="speakCurrentQuiz()">🔊</button>
+                    <button class="btn-speak" onclick="speakCurrentQuiz()">🔊</button>
                 </div>
             </div>
             <div class="card-row"><div class="label-text">請填空題目</div><div class="word-present" id="quiz-question" style="letter-spacing: 2px;">W_rk</div></div>
@@ -130,9 +135,37 @@
         </div>
     </div>
 
+    <!-- 3. AI 智慧造句模式 -->
+    <div id="view-sentence" class="sentence-view hidden">
+        <div class="stats" style="text-align: center;">💡 系統將隨機串聯你的單字並生成道地歐美實用語句</div>
+        <div class="flashcard">
+            <div class="card-row">
+                <div class="label-text">生成的道地句子 (AI Generated)</div>
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <span class="word-present" id="gen-sentence-text" style="font-size: 22px; color: #1a1a1a;">點擊下方按鈕開始造句</span>
+                    <button class="btn-speak" id="gen-speak-btn" style="display:none;" onclick="speakDirect(document.getElementById('gen-sentence-text').innerText)">🔊</button>
+                </div>
+            </div>
+            <div class="card-row">
+                <div class="label-text">這句話的中文意思</div>
+                <div class="word-trans" id="gen-trans-text" style="font-size: 17px; color: #666;">-</div>
+            </div>
+            <div class="card-row" id="gen-keywords-row" style="display:none;">
+                <div class="label-text">本次使用到的核心單字</div>
+                <div style="font-size: 13px; font-weight: bold; color: #333;" id="gen-keywords-list"></div>
+            </div>
+        </div>
+        <div>
+            <!-- 加入複習按鈕，平時隱藏 -->
+            <button class="btn-submit" id="btn-add-to-pool" style="display:none; background:#2e7d32; margin-bottom: 8px;" onclick="addGeneratedToPool()">📥 這句很實用，加入複習與測驗！</button>
+            <button class="btn-submit" style="background:#333; margin-top:0;" onclick="generateSmartSentence()">🔥 開始隨機生成常規語句</button>
+        </div>
+    </div>
+
+    <!-- 4. 輸入模式 -->
     <div id="view-add" class="input-view hidden">
         <div class="form-container">
-            <h3 id="form-title" style="margin: 0 0 10px 0; font-size: 16px; text-align: center; color: #555;">新增單字庫</h3>
+            <h3 id="form-title" style="margin: 0 0 5px 0; font-size: 16px; text-align: center; color: #555;">新增單字庫</h3>
             <input type="hidden" id="edit-id">
             <div class="form-group">
                 <label>第一個框：單字/句子 <button class="btn-speak" onclick="speakText('in-word')">🔊 試聽</button></label>
@@ -140,35 +173,69 @@
             </div>
             <div class="form-group"><label>第二個框：空耳唸法</label><input type="text" id="in-pronounce" placeholder="例如: 沃克" autocomplete="off"></div>
             <div class="form-group"><label>第三個框：中文意思</label><input type="text" id="in-trans" placeholder="例如: 工作" autocomplete="off"></div>
+            <div class="form-group">
+                <label>選擇分類標籤</label>
+                <div style="display: flex; gap: 6px;">
+                    <select id="in-tag"></select>
+                    <button type="button" style="padding:0 12px; background:#e0e0e0; border:none; border-radius:12px; font-weight:bold;" onclick="addNewTagType()">+</button>
+                </div>
+            </div>
         </div>
         <button class="btn-submit" id="btn-submit-text" onclick="saveWord()">儲存單字</button>
     </div>
 
+    <!-- 5. 清單模式 -->
     <div id="view-list" class="list-view hidden">
         <div class="list-wrapper">
             <div class="stats" style="text-align: left; margin-bottom: 5px;" id="list-count-text">共有 0 個單字</div>
+            <div class="filter-bar" id="list-filter-bar"></div>
             <div class="list-container" id="list-container"></div>
+        </div>
+        <div class="backup-section">
+            <button class="btn-backup" onclick="exportData()">📤 備份單字(複製數據)</button>
+            <button class="btn-backup" style="background:#555;" onclick="importData()">📥 匯入數據</button>
         </div>
     </div>
 </div>
 
 <script>
-    const defaultWords = [{ id: 1, word: "Work", pronounce: "沃克", trans: "工作", status: "new" }];
-    let words = JSON.parse(localStorage.getItem('gm_words')) || defaultWords;
+    const defaultWords = [{ id: 1, word: "Work", pronounce: "沃克", trans: "工作", status: "new", tag: "工作", star: false }];
+    const defaultTags = ["工作", "沙龍", "生活", "開會", "日常", "造句"];
+    
+    let words = JSON.parse(localStorage.getItem('gm_words_v2')) || defaultWords;
+    let tagTypes = JSON.parse(localStorage.getItem('gm_tags')) || defaultTags;
     
     let pool = [];
     let currentWord = null;
+    let currentReviewFilter = "全部";
+    let currentListFilter = "全部";
     
     let quizPool = [];
     let currentQuizWord = null;
     let currentQuizAnswer = ""; 
     let isQuizAnswered = false;
 
-    // 圖片網址設定
-    const imgSuccess = "https://lurl.cc/nUtoT";
-    const imgFail = "https://lurl.cc/T2ayH";
+    let quizTotalCount = 0;
+    let quizCorrectCount = 0;
 
-    function saveToStorage() { localStorage.setItem('gm_words', JSON.stringify(words)); }
+    // 造句系統文法樣板庫（智慧連接詞）
+    const sentenceTemplates = [
+        { template: "I need to {v} because of my {n}.", trans: "我需要去{v}，因為我的{n}。" },
+        { template: "Can we {v} together for the {n}?", trans: "我們可以為了這個{n}一起去{v}嗎？" },
+        { template: "Your {n} looks great when you {v}.", trans: "當你去{v}的時候，你的{n}看起來棒極了。" },
+        { template: "Please help me {v} this important {n}.", trans: "請幫我{v}這個重要的{n}。" },
+        { template: "I am trying to {v} every day to improve my {n}.", trans: "我每天都試著去{v}來提升我的{n}。" },
+        { template: "Don't forget to {v} before the next {n}.", trans: "在下一次{n}之前，別忘了去{v}。" },
+        { template: "This is how we {v} in our daily {n}.", trans: "這就是我們在日常{n}中如何進行{v}的方式。" },
+        { template: "If you {v}, it will be a perfect {n}.", trans: "如果你去{v}，那將會是一個完美的{n}。" },
+        { template: "I always feel good when I {v} with this {n}.", trans: "當我和這個{n}一起去{v}的時候，我總是感覺很好。" },
+        { template: "Let's {v} first, then we can discuss the {n}.", trans: "我們選去{v}吧，然後我們可以討論這個{n}。" }
+    ];
+
+    function saveToStorage() { 
+        localStorage.setItem('gm_words_v2', JSON.stringify(words)); 
+        localStorage.setItem('gm_tags', JSON.stringify(tagTypes));
+    }
 
     function speakText(elementId) {
         const element = document.getElementById(elementId);
@@ -177,76 +244,214 @@
         text = text.replace(/_/g, "");
         if (!text) return;
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "en-US";
-        utterance.rate = 0.85;
+        utterance.lang = "en-US"; utterance.rate = 0.85;
         window.speechSynthesis.speak(utterance);
     }
     
     function speakCurrentQuiz() {
         if (!currentQuizWord) return;
         const utterance = new SpeechSynthesisUtterance(currentQuizWord.word);
-        utterance.lang = "en-US";
-        utterance.rate = 0.85;
+        utterance.lang = "en-US"; utterance.rate = 0.85;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function speakDirect(text) {
+        if(!text || text.includes("點擊")) return;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-US"; utterance.rate = 0.85;
         window.speechSynthesis.speak(utterance);
     }
 
     function switchView(view) {
         document.getElementById('view-review').classList.add('hidden');
         document.getElementById('view-quiz').classList.add('hidden');
+        document.getElementById('view-sentence').classList.add('hidden');
         document.getElementById('view-add').classList.add('hidden');
         document.getElementById('view-list').classList.add('hidden');
         
         document.getElementById('nav-review').classList.remove('active');
         document.getElementById('nav-quiz').classList.remove('active');
+        document.getElementById('nav-sentence').classList.remove('active');
         document.getElementById('nav-add').classList.remove('active');
         document.getElementById('nav-list').classList.remove('active');
-
-        // 切換頁面時強制隱藏老師圖片
-        document.getElementById('teacher-pic').style.display = "none";
 
         if (view === 'review') {
             document.getElementById('view-review').classList.remove('hidden');
             document.getElementById('nav-review').classList.add('active');
-            buildPool(); nextCard();
+            renderFilterBar('review'); buildPool(); nextCard();
         } else if (view === 'quiz') {
             document.getElementById('view-quiz').classList.remove('hidden');
             document.getElementById('nav-quiz').classList.add('active');
-            resetQuizState();
-            buildQuizPool(); nextQuiz();
+            resetQuizState(); buildQuizPool(); nextQuiz();
+        } else if (view === 'sentence') {
+            document.getElementById('view-sentence').classList.remove('hidden');
+            document.getElementById('nav-sentence').classList.add('active');
         } else if (view === 'add') {
             document.getElementById('view-add').classList.remove('hidden');
             document.getElementById('nav-add').classList.add('active');
-            document.getElementById('form-title').innerText = "新增單字庫";
-            document.getElementById('btn-submit-text').innerText = "儲存單字";
-            document.getElementById('edit-id').value = "";
+            updateTagSelectOptions();
+            if(!document.getElementById('edit-id').value) {
+                document.getElementById('form-title').innerText = "新增單字庫";
+                document.getElementById('btn-submit-text').innerText = "儲存單字";
+            }
         } else if (view === 'list') {
             document.getElementById('view-list').classList.remove('hidden');
             document.getElementById('nav-list').classList.add('active');
-            renderList();
+            renderFilterBar('list'); renderList();
         }
+    }
+
+    // --- AI 智慧造句控制中心 ---
+    function generateSmartSentence() {
+        if(words.length < 1) {
+            alert("你目前的字庫太少囉，先多加幾個單字再來玩吧！");
+            return;
+        }
+
+        // 從資料庫任意抽出兩個詞彙充當動詞和名詞
+        let r1 = words[Math.floor(Math.random() * words.length)];
+        let r2 = words[Math.floor(Math.random() * words.length)];
+        
+        // 隨機選一個高道地文法模組
+        let tplObj = sentenceTemplates[Math.floor(Math.random() * sentenceTemplates.length)];
+        
+        // 轉全小寫排除開頭大寫干擾
+        let w1 = r1.word.toLowerCase();
+        let w2 = r2.word.toLowerCase();
+
+        // 智慧渲染句子與中文意思
+        let finalSentence = tplObj.template.replace("{v}", w1).replace("{n}", w2);
+        // 字首大寫修正
+        finalSentence = finalSentence.charAt(0).toUpperCase() + finalSentence.slice(1);
+        
+        let finalTrans = tplObj.trans.replace("{v}", r1.trans).replace("{n}", r2.trans);
+
+        // 更新畫面
+        document.getElementById('gen-sentence-text').innerText = finalSentence;
+        document.getElementById('gen-trans-text').innerText = finalTrans;
+        document.getElementById('gen-keywords-list').innerText = `【${r1.word} = ${r1.trans}】 + 【${r2.word} = ${r2.trans}】`;
+        
+        document.getElementById('gen-speak-btn').style.display = "inline-flex";
+        document.getElementById('gen-keywords-row').style.display = "block";
+        document.getElementById('btn-add-to-pool').style.display = "block";
+
+        // 自動朗讀
+        setTimeout(() => { speakDirect(finalSentence); }, 200);
+    }
+
+    function addGeneratedToPool() {
+        const wordStr = document.getElementById('gen-sentence-text').innerText;
+        const transStr = document.getElementById('gen-trans-text').innerText;
+
+        if(!wordStr || wordStr.includes("點擊")) return;
+
+        // 檢查是否重複加入
+        if(words.some(w => w.word.toLowerCase() === wordStr.toLowerCase())) {
+            alert("這一句已經在你的複習庫裡囉！");
+            return;
+        }
+
+        // 自動封裝儲存
+        const newW = {
+            id: Date.now(),
+            word: wordStr,
+            pronounce: "點擊喇叭聽標準音",
+            trans: transStr,
+            status: 'new',
+            tag: "造句",
+            star: false
+        };
+        
+        words.push(newW);
+        saveToStorage();
+        showToast("已成功加入複習與智慧測驗！");
+        
+        // 導向複習頁面
+        setTimeout(() => { switchView('review'); }, 600);
+    }
+
+    // --- 分類標籤渲染 ---
+    function updateTagSelectOptions() {
+        const select = document.getElementById('in-tag');
+        select.innerHTML = '';
+        tagTypes.forEach(t => {
+            const opt = document.createElement('option'); opt.value = t; opt.innerText = t;
+            select.appendChild(opt);
+        });
+    }
+
+    function addNewTagType() {
+        const name = prompt("請輸入新分類區域名稱（例如: 出國）:");
+        if(name && name.trim()) {
+            const clean = name.trim();
+            if(!tagTypes.includes(clean)) { tagTypes.push(clean); saveToStorage(); }
+            updateTagSelectOptions();
+            document.getElementById('in-tag').value = clean;
+        }
+    }
+
+    function renderFilterBar(type) {
+        const bar = document.getElementById(type === 'review' ? 'review-filter-bar' : 'list-filter-bar');
+        const currentSelected = type === 'review' ? currentReviewFilter : currentListFilter;
+        bar.innerHTML = '';
+        
+        const btnAll = document.createElement('button'); btnAll.className = `btn-filter ${currentSelected === '全部'?'active':''}`; btnAll.innerText = "全部";
+        btnAll.onclick = () => { selectFilter(type, '全部'); }; bar.appendChild(btnAll);
+
+        const btnStar = document.createElement('button'); btnStar.className = `btn-filter ${currentSelected === '★ 重點'?'active':''}`; btnStar.innerText = "★ 重點";
+        btnStar.onclick = () => { selectFilter(type, '★ 重點'); }; bar.appendChild(btnStar);
+
+        tagTypes.forEach(t => {
+            if(words.some(w => w.tag === t)) {
+                const btn = document.createElement('button'); btn.className = `btn-filter ${currentSelected === t?'active':''}`; btn.innerText = t;
+                btn.onclick = () => { selectFilter(type, t); }; bar.appendChild(btn);
+            }
+        });
+    }
+
+    function selectFilter(type, target) {
+        if(type === 'review') { currentReviewFilter = target; buildPool(); nextCard(); renderFilterBar('review'); }
+        else { currentListFilter = target; renderList(); renderFilterBar('list'); }
     }
 
     // --- 複習模式 ---
     function buildPool() {
-        let circles = words.filter(w => w.status === 'circle');
-        let deltas = words.filter(w => w.status === 'delta');
-        let news = words.filter(w => w.status === 'new');
+        let filtered = [...words];
+        if(currentReviewFilter === '★ 重點') { filtered = filtered.filter(w => w.star); }
+        else if(currentReviewFilter !== '全部') { filtered = filtered.filter(w => w.tag === currentReviewFilter); }
+
+        let circles = filtered.filter(w => w.status === 'circle');
+        let deltas = filtered.filter(w => w.status === 'delta');
+        let news = filtered.filter(w => w.status === 'new');
+        
         pool = [];
         deltas.forEach(w => { for(let i=0; i<3; i++) pool.push({...w}); });
         news.forEach(w => pool.push({...w}));
-        if (pool.length === 0 && circles.length > 0) { circles.forEach(w => { w.status = 'new'; pool.push({...w}); }); saveToStorage(); }
-        if (pool.length === 0 && words.length > 0) { words.forEach(w => { w.status = 'new'; pool.push({...w}); }); saveToStorage(); }
+        
+        if (pool.length === 0 && circles.length > 0) { 
+            circles.forEach(w => { let t = words.find(x=>x.id===w.id); if(t) t.status = 'new'; pool.push({...w}); }); 
+            saveToStorage(); 
+        }
         pool.sort(() => Math.random() - 0.5);
         updateStats();
     }
-    function updateStats() { document.getElementById('stats-text').innerText = `總單字量: ${words.length} | 本輪剩餘: ${pool.length} 張`; }
+    function updateStats() { 
+        document.getElementById('stats-text').innerText = `目前篩選量: ${pool.length} 張卡卡 | 總庫存: ${words.length}`; 
+    }
     function nextCard() {
-        if (pool.length === 0) buildPool();
-        if (pool.length === 0) { document.getElementById('card-word').innerText = "目前沒有單字，快去新增吧！"; document.getElementById('card-pronounce').innerText = "-"; document.getElementById('card-trans').innerText = "-"; currentWord = null; return; }
+        if (pool.length === 0 && words.length > 0) buildPool();
+        if (pool.length === 0) { 
+            document.getElementById('card-word').innerText = "此分類空空的，快去新增吧！"; 
+            document.getElementById('card-pronounce').innerText = "-"; 
+            document.getElementById('card-trans').innerText = "-"; 
+            document.getElementById('card-tag').innerText = "-";
+            currentWord = null; return; 
+        }
         currentWord = pool.shift();
         document.getElementById('card-word').innerText = currentWord.word;
         document.getElementById('card-pronounce').innerText = currentWord.pronounce || "未填寫";
         document.getElementById('card-trans').innerText = currentWord.trans;
+        document.getElementById('card-tag').innerText = currentWord.tag || "通用";
         updateStats();
     }
     function triggerScore(type) {
@@ -257,7 +462,7 @@
         nextCard();
     }
 
-    // --- 智慧測驗模式（整合老師圖片彈出功能） ---
+    // --- 智慧測驗模式 ---
     function buildQuizPool() {
         quizPool = [];
         words.forEach(w => { quizPool.push({...w}); });
@@ -266,6 +471,7 @@
     }
     function updateQuizStats() {
         document.getElementById('quiz-stats-text').innerText = `測驗題庫: ${words.length} 題 | 剩餘: ${quizPool.length} 題`;
+        document.getElementById('quiz-score-text').innerText = `本日戰績：${quizCorrectCount} 答對 / ${quizTotalCount} 總題`;
     }
     
     function generateQuestion(originalStr) {
@@ -274,6 +480,8 @@
             let wordsArr = str.split(/\s+/);
             let randomIndex = Math.floor(Math.random() * wordsArr.length);
             currentQuizAnswer = wordsArr[randomIndex];
+            // 過濾掉結尾標點符號方便填空
+            currentQuizAnswer = currentQuizAnswer.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"");
             wordsArr[randomIndex] = "_______";
             return wordsArr.join(" ");
         } else {
@@ -293,12 +501,12 @@
             document.getElementById('quiz-question').innerText = "請先去新增單字唷！";
             document.getElementById('quiz-pronounce').innerText = "-";
             document.getElementById('quiz-trans').innerText = "-";
-            currentQuizWord = null;
             return;
         }
         currentQuizWord = quizPool.shift();
         document.getElementById('quiz-trans').innerText = currentQuizWord.trans;
         document.getElementById('quiz-pronounce').innerText = currentQuizWord.pronounce || "無空耳提示";
+        document.getElementById('quiz-tag').innerText = currentQuizWord.tag || "通用";
         document.getElementById('quiz-question').innerText = generateQuestion(currentQuizWord.word);
         updateQuizStats();
     }
@@ -306,74 +514,44 @@
     function resetQuizState() {
         isQuizAnswered = false;
         const panel = document.getElementById('quiz-result-panel');
-        panel.style.display = "none";
-        panel.className = "quiz-result-box";
-        
+        panel.style.display = "none"; panel.className = "quiz-result-box";
         const mainBtn = document.getElementById('btn-quiz-main');
-        mainBtn.innerText = "檢查答案";
-        mainBtn.style.background = "#333";
-        
+        mainBtn.innerText = "檢查答案"; mainBtn.style.background = "#333";
         document.getElementById('quiz-answer-input').value = "";
         document.getElementById('quiz-answer-input').style.display = "block";
-        document.getElementById('teacher-pic').style.display = "none"; // 隱藏圖片
-    }
-
-    function showTeacherImage(isCorrect) {
-        const imgEl = document.getElementById('teacher-pic');
-        imgEl.src = isCorrect ? imgSuccess : imgFail;
-        imgEl.style.display = "block";
-        
-        // 1秒（1000毫秒）後自動隱藏
-        setTimeout(() => {
-            imgEl.style.display = "none";
-        }, 1000);
     }
 
     function checkQuizAnswer() {
         if (!currentQuizWord) return;
-
-        if (isQuizAnswered) {
-            nextQuiz();
-            return;
-        }
+        if (isQuizAnswered) { nextQuiz(); return; }
 
         const userAns = document.getElementById('quiz-answer-input').value.trim();
         const panel = document.getElementById('quiz-result-panel');
         const mainBtn = document.getElementById('btn-quiz-main');
         
-        isQuizAnswered = true;
+        isQuizAnswered = true; quizTotalCount++;
         document.getElementById('quiz-answer-input').style.display = "none";
 
         if (userAns.toLowerCase() === currentQuizAnswer.toLowerCase()) {
-            showToast("你好棒！");
-            showTeacherImage(true); // 跳出答對圖片
-            
+            showToast("你好棒！"); quizCorrectCount++;
             panel.innerText = `🟢 答對了！答案就是：${currentQuizAnswer}`;
-            panel.classList.add('quiz-result-success');
-            panel.style.display = "block";
+            panel.classList.add('quiz-result-success'); panel.style.display = "block";
             
             let target = words.find(w => w.id === currentQuizWord.id);
             if(target) { target.status = 'circle'; saveToStorage(); }
         } else {
             showToast("加油！你可以的");
-            showTeacherImage(false); // 跳出答錯圖片
-            
             panel.innerText = `🔴 答錯了！正確答案是：${currentQuizAnswer}`;
-            panel.classList.add('quiz-result-fail');
-            panel.style.display = "block";
+            panel.classList.add('quiz-result-fail'); panel.style.display = "block";
             
             let target = words.find(w => w.id === currentQuizWord.id);
             if(target) { target.status = 'delta'; saveToStorage(); }
             
-            for(let i=0; i<3; i++) {
-                quizPool.push({...currentQuizWord});
-            }
+            for(let i=0; i<3; i++) { quizPool.push({...currentQuizWord}); }
             quizPool.sort(() => Math.random() - 0.5);
-            updateQuizStats();
         }
-
-        mainBtn.innerText = "下一題";
-        mainBtn.style.background = "#0080ff";
+        updateQuizStats();
+        mainBtn.innerText = "下一題"; mainBtn.style.background = "#0080ff";
     }
 
     // --- 新增 / 修改與清單邏輯 ---
@@ -381,16 +559,17 @@
         const word = document.getElementById('in-word').value.trim();
         const pronounce = document.getElementById('in-pronounce').value.trim();
         const trans = document.getElementById('in-trans').value.trim();
+        const tag = document.getElementById('in-tag').value;
         const editId = document.getElementById('edit-id').value;
 
-        if (!word || !pronounce || !trans) { alert('三個框框都要填滿唷！'); return; }
+        if (!word || !pronounce || !trans) { alert('全部框框都要填滿唷！'); return; }
 
         if (editId) {
             let target = words.find(w => w.id == editId);
-            if (target) { target.word = word; target.pronounce = pronounce; target.trans = trans; }
+            if (target) { target.word = word; target.pronounce = pronounce; target.trans = trans; target.tag = tag; }
             showToast("修改成功！");
         } else {
-            const newW = { id: Date.now(), word: word, pronounce: pronounce, trans: trans, status: 'new' };
+            const newW = { id: Date.now(), word: word, pronounce: pronounce, trans: trans, status: 'new', tag: tag, star: false };
             words.push(newW);
             showToast("新增成功！");
         }
@@ -408,17 +587,25 @@
         document.getElementById('list-count-text').innerText = `目前單字庫共有: ${words.length} 個單字`;
         container.innerHTML = '';
         if (words.length === 0) { container.innerHTML = '<div style="color: #999; text-align: center; padding: 10px;">清單目前是空的喔</div>'; return; }
-        const displayList = [...words].reverse();
+        
+        let displayList = [...words].reverse();
+        if(currentListFilter === '★ 重點') { displayList = displayList.filter(w => w.star); }
+        else if(currentListFilter !== '全部') { displayList = displayList.filter(w => w.tag === currentListFilter); }
+
         displayList.forEach(w => {
             const item = document.createElement('div'); item.className = 'list-item';
             let statusBadge = w.status === 'circle' ? '● 懂了' : (w.status === 'delta' ? '▲ 不熟' : '新加入');
+            let starIcon = w.star ? '★' : '☆';
+            let starColor = w.star ? '#ffb300' : '#bbb';
+
             item.innerHTML = `
                 <div class="list-info">
-                    <div class="list-word">${w.word}</div>
+                    <div class="list-word">${w.word} <span style="font-size:10px; background:#e0e0e0; padding:2px 5px; border-radius:4px; color:#666;">${w.tag}</span></div>
                     <div class="list-details">唸法: ${w.pronounce} | 意思: ${w.trans} (${statusBadge})</div>
                 </div>
                 <div class="list-btns">
-                    <button class="btn-edit-item" style="background:#222; color:white; border-radius:50%; width:28px; height:28px; border:none; margin-right:4px;" onclick="speakDirect('${w.word.replace(/'/g, "\\'")}')">🔊</button>
+                    <button class="btn-star" style="color: ${starColor};" onclick="toggleStar(${w.id})">${starIcon}</button>
+                    <button class="btn-edit-item" style="background:#222; color:white; border-radius:50%; width:28px; height:28px; border:none; padding:0;" onclick="speakDirect('${w.word.replace(/'/g, "\\'")}')">🔊</button>
                     <button class="btn-edit-item" onclick="startEdit(${w.id})">改</button>
                     <button class="btn-delete-item" onclick="deleteWord(${w.id})">刪</button>
                 </div>
@@ -427,19 +614,19 @@
         });
     }
 
-    function speakDirect(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "en-US";
-        utterance.rate = 0.85;
-        window.speechSynthesis.speak(utterance);
+    function toggleStar(id) {
+        let target = words.find(w => w.id === id);
+        if(target) { target.star = !target.star; saveToStorage(); renderList(); }
     }
 
     function startEdit(id) {
         let target = words.find(w => w.id === id);
         if (!target) return;
+        updateTagSelectOptions();
         document.getElementById('in-word').value = target.word;
         document.getElementById('in-pronounce').value = target.pronounce;
         document.getElementById('in-trans').value = target.trans;
+        document.getElementById('in-tag').value = target.tag || "工作";
         document.getElementById('edit-id').value = target.id;
         document.getElementById('form-title').innerText = "修改單字內容";
         document.getElementById('btn-submit-text').innerText = "確認修改";
@@ -448,7 +635,31 @@
 
     function deleteWord(id) {
         if (confirm('確定要刪除這個單字嗎？')) {
-            words = words.filter(w => w.id !== id); saveToStorage(); renderList(); showToast("已刪除");
+            words = words.filter(w => w.id !== id); saveToStorage(); renderList(); renderFilterBar('list'); showToast("已刪除");
+        }
+    }
+
+    function exportData() {
+        const dataStr = btoa(encodeURIComponent(JSON.stringify({words, tagTypes})));
+        const tempInput = document.createElement('input');
+        document.body.appendChild(tempInput);
+        tempInput.value = dataStr; tempInput.select();
+        document.execCommand('copy'); document.body.removeChild(tempInput);
+        alert("🎉 備份成功！數據已複製到剪貼簿，請貼到「備忘錄」保存。");
+    }
+
+    function importData() {
+        const code = prompt("請貼上備份數據代碼：");
+        if(code && code.trim()) {
+            try {
+                const decoded = JSON.parse(decodeURIComponent(atob(code.trim())));
+                if(decoded.words) {
+                    if(confirm(`確認匯入 ${decoded.words.length} 個字？這會覆蓋舊資料喔！`)) {
+                        words = decoded.words; if(decoded.tagTypes) tagTypes = decoded.tagTypes;
+                        saveToStorage(); showToast("數據匯入成功！"); switchView('review');
+                    }
+                }
+            } catch(e) { alert("匯入失敗，請確認代碼無誤！"); }
         }
     }
 
