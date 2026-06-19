@@ -114,9 +114,10 @@
             <div class="stats" id="quiz-score-text" style="color: #2e7d32; margin-top: 2px;">本日戰績：0 答對 / 0 總題</div>
         </div>
         <div class="flashcard">
+            <!-- 精準的空格詞性提示區 -->
             <div class="card-row" style="background: #fff8e1; border-color: #ffe082;">
-                <div class="label-text" style="color:#b78103;">💡 詞性與分類提示</div>
-                <div style="font-weight: bold; font-size: 16px; color:#b78103;" id="quiz-part-hint">要填寫的是：動詞 (生活)</div>
+                <div class="label-text" style="color:#b78103;">💡 填空詞性大提示</div>
+                <div style="font-weight: bold; font-size: 16px; color:#b78103;" id="quiz-part-hint">要填寫的是：-</div>
             </div>
             <div class="card-row">
                 <div class="label-text">中文意思提示</div>
@@ -140,7 +141,7 @@
 
     <!-- 3. AI 智慧造句模式 -->
     <div id="view-sentence" class="sentence-view hidden">
-        <div class="stats" style="text-align: center;">💡 系統會根據你庫存裡的詞性，隨機產出道地常規生活句型</div>
+        <div class="stats" style="text-align: center;">💡 系統會自動根據核心單字的詞性，產出常規道地句型</div>
         <div class="flashcard">
             <div class="card-row">
                 <div class="label-text">生成的常規句子 (Auto Sentence)</div>
@@ -213,14 +214,12 @@
 </div>
 
 <script>
-    // 預設核心數據調整：預設標籤只留「生活」，其餘使用者點+自行新增
     const defaultWords = [{ id: 1, word: "Work", pronounce: "沃克", trans: "工作", status: "new", tag: "生活", part: "動詞", star: false }];
     const defaultTags = ["生活"];
     
     let words = JSON.parse(localStorage.getItem('gm_words_v3')) || defaultWords;
     let tagTypes = JSON.parse(localStorage.getItem('gm_tags_v3')) || defaultTags;
     
-    // 資料結構向下相容安全升級
     words.forEach(w => { 
         if(!w.tag) w.tag = "生活"; 
         if(!w.part) w.part = w.word.includes(" ") ? "句子" : "動詞";
@@ -240,7 +239,7 @@
     let quizTotalCount = 0;
     let quizCorrectCount = 0;
 
-    // 依照詞性配置的道地常規生活造句句型庫
+    // 造句系統文法公式庫
     const verbTemplates = [
         { tpl: "I want to {w} every day.", trans: "我想要每天都去{t}。", pron: "愛 望 特 吐 [單字] 艾夫里 爹" },
         { tpl: "Can you help me {w} this?", trans: "你能幫我{t}這個嗎？", pron: "看 优 嘿普 咪 [單字] 茲斯" },
@@ -258,6 +257,13 @@
         { tpl: "I want to buy a {w} item.", trans: "我想買一個很{t}的品項。", pron: "愛 望 特 拜 爾 [單字] 艾特姆" },
         { tpl: "Your style is very {w}.", trans: "你的風格真的非常{t}。", pron: "优爾 史太歐 伊茲 飛瑞 [單字]" }
     ];
+
+    // 全自動常見單字詞性字典（用來精準判斷句子中被挖空的那個字是什麼詞性）
+    const commonWordsDict = {
+        "work": "動詞/名詞", "like": "動詞", "want": "動詞", "need": "動詞", "help": "動詞", "buy": "動詞", "go": "動詞", "see": "動詞", "know": "動詞",
+        "favorite": "形容詞", "wonderful": "形容詞", "perfect": "形容詞", "good": "形容詞", "great": "形容詞", "beautiful": "形容詞", "important": "形容詞",
+        "style": "名詞", "item": "名詞", "day": "名詞", "time": "名詞", "hair": "名詞", "salon": "名詞", "meeting": "名詞", "life": "名詞"
+    };
 
     function saveToStorage() { 
         localStorage.setItem('gm_words_v3', JSON.stringify(words)); 
@@ -317,10 +323,6 @@
             document.getElementById('view-add').classList.remove('hidden');
             document.getElementById('nav-add').classList.add('active');
             updateTagSelectOptions();
-            if(!document.getElementById('edit-id').value) {
-                document.getElementById('form-title').innerText = "新增單字庫";
-                document.getElementById('btn-submit-text').innerText = "儲存單字";
-            }
         } else if (view === 'list') {
             document.getElementById('view-list').classList.remove('hidden');
             document.getElementById('nav-list').classList.add('active');
@@ -328,11 +330,9 @@
         }
     }
 
-    // --- 智慧造句（智慧舉例版：完美支援單一字、自動配對發音/空耳/中文） ---
+    // --- 智慧造句 ---
     function generateSmartSentence() {
         if(words.length < 1) { alert("字庫太少囉，先去新增一些單字吧！"); return; }
-
-        // 任意隨機抽一個核心大魔王單字
         let randomWordObj = words[Math.floor(Math.random() * words.length)];
         let p = randomWordObj.part || "動詞";
         
@@ -340,7 +340,6 @@
         if(p === "名詞") poolTemplates = nounTemplates;
         if(p === "形容詞") poolTemplates = adjTemplates;
         if(p === "句子") {
-            // 如果原本就是句子，直接拿他的內容包裝，不硬塞短樣板
             let finalS = `I know that: ${randomWordObj.word.toLowerCase()}`;
             document.getElementById('gen-sentence-text').innerText = finalS;
             document.getElementById('gen-trans-text').innerText = `我知道這個說法：${randomWordObj.trans}`;
@@ -348,20 +347,16 @@
             showSentenceActionUI(finalS); return;
         }
 
-        // 隨機抽選文法公式樣板
         let selectedTpl = poolTemplates[Math.floor(Math.random() * poolTemplates.length)];
-        
         let finalStr = selectedTpl.tpl.replace("{w}", randomWordObj.word.toLowerCase());
-        finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1); // 首字母大寫修正
+        finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1);
 
         let finalTransStr = selectedTpl.trans.replace("{t}", randomWordObj.trans);
         let finalPronounceStr = selectedTpl.pron.replace("[單字]", randomWordObj.pronounce || randomWordObj.word);
 
-        // 渲染上螢幕
         document.getElementById('gen-sentence-text').innerText = finalStr;
         document.getElementById('gen-trans-text').innerText = finalTransStr;
         document.getElementById('gen-pronounce-text').innerText = finalPronounceStr;
-        
         showSentenceActionUI(finalStr);
     }
 
@@ -379,23 +374,13 @@
         if(!wordStr || wordStr.includes("點擊")) return;
         if(words.some(w => w.word.toLowerCase() === wordStr.toLowerCase())) { alert("這句已經儲存過囉！"); return; }
 
-        const newW = {
-            id: Date.now(),
-            word: wordStr,
-            pronounce: pronStr,
-            trans: transStr,
-            status: 'new',
-            tag: "生活", // 預設歸入生活分類
-            part: "句子", // 自動生成句一律標記為句子
-            star: false
-        };
-        
+        const newW = { id: Date.now(), word: wordStr, pronounce: pronStr, trans: transStr, status: 'new', tag: "生活", part: "句子", star: false };
         words.push(newW); saveToStorage();
         showToast("已成功歸檔至「生活」與測驗庫！");
         setTimeout(() => { switchView('review'); }, 600);
     }
 
-    // --- 分類與篩選 ---
+    // --- 分類選單控制 ---
     function updateTagSelectOptions() {
         const select = document.getElementById('in-tag'); select.innerHTML = '';
         tagTypes.forEach(t => {
@@ -404,7 +389,7 @@
     }
 
     function addNewTagType() {
-        const name = prompt("請輸入自訂分類標籤名稱（例如: 沙龍）:");
+        const name = prompt("請輸入自訂分類標籤名稱:");
         if(name && name.trim()) {
             const clean = name.trim();
             if(!tagTypes.includes(clean)) { tagTypes.push(clean); saveToStorage(); }
@@ -481,7 +466,7 @@
         nextCard();
     }
 
-    // --- 智慧測驗模式（整合詞性大提示） ---
+    // --- 智慧測驗模式（精準空格詞性判定核心） ---
     function buildQuizPool() {
         quizPool = []; words.forEach(w => { quizPool.push({...w}); });
         quizPool.sort(() => Math.random() - 0.5); updateQuizStats();
@@ -491,20 +476,38 @@
         document.getElementById('quiz-score-text').innerText = `本日戰績：${quizCorrectCount} 答對 / ${quizTotalCount} 總題`;
     }
     
-    function generateQuestion(originalStr) {
-        let str = originalStr.trim();
+    function generateQuestionAndHint(wordObj) {
+        let str = wordObj.word.trim();
+        
+        // 1. 如果它是句子（內容包含空格）
         if (str.includes(" ")) {
             let wordsArr = str.split(/\s+/);
             let randomIndex = Math.floor(Math.random() * wordsArr.length);
-            currentQuizAnswer = wordsArr[randomIndex];
-            currentQuizAnswer = currentQuizAnswer.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"");
+            let rawAnswer = wordsArr[randomIndex];
+            
+            // 清理掉標點符號當作正確答案
+            currentQuizAnswer = rawAnswer.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"");
             wordsArr[randomIndex] = "_______";
+            
+            // 【核心修正】：去字典查被挖空的這「一整個單字」到底是名詞、動詞還是形容詞
+            let lowerAns = currentQuizAnswer.toLowerCase();
+            let exactPart = commonWordsDict[lowerAns] || "句子中的單字";
+            
+            // 渲染提示：直接精準顯示被挖空字的詞性，絕不誤導！
+            document.getElementById('quiz-part-hint').innerText = `這個「空格」要填寫的是：${exactPart} (${wordObj.tag})`;
             return wordsArr.join(" ");
+            
         } else {
+            // 2. 如果原本就是單字
             if(str.length <= 1) { currentQuizAnswer = str; return "_"; }
             let randomIndex = Math.floor(Math.random() * str.length);
             currentQuizAnswer = str[randomIndex];
-            let charArray = str.split(""); charArray[randomIndex] = "_";
+            
+            let charArray = str.split("");
+            charArray[randomIndex] = "_";
+            
+            // 渲染提示：它是單字，直接抓你當初設定的詞性
+            document.getElementById('quiz-part-hint').innerText = `這個「字母」要填寫的是：${wordObj.part || '單字'} 中的字母 (${wordObj.tag})`;
             return charArray.join("");
         }
     }
@@ -518,10 +521,8 @@
         document.getElementById('quiz-trans').innerText = currentQuizWord.trans;
         document.getElementById('quiz-pronounce').innerText = currentQuizWord.pronounce || "無空耳提示";
         
-        // 精準秀出詞性與標籤過濾提示，杜絕使用者搞混誤會！
-        document.getElementById('quiz-part-hint').innerText = `要填寫的是：${currentQuizWord.part || '單字'} (${currentQuizWord.tag || '生活'})`;
-        
-        document.getElementById('quiz-question').innerText = generateQuestion(currentQuizWord.word);
+        // 產生題目，並在函式內同步判定被挖空處的詞性提示
+        document.getElementById('quiz-question').innerText = generateQuestionAndHint(currentQuizWord);
         updateQuizStats();
     }
 
@@ -657,11 +658,6 @@
         alert("🎉 備份成功！數據已複製到剪貼簿，請貼到「備忘錄」保存。");
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        // 確保初始標籤綁定無誤
-        updateTagSelectOptions();
-    });
-
     function importData() {
         const code = prompt("請貼上備份數據代碼：");
         if(code && code.trim()) {
@@ -681,6 +677,10 @@
         const toast = document.getElementById('toast'); toast.innerText = text; toast.classList.add('show');
         setTimeout(() => { toast.classList.remove('show'); }, 800);
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        updateTagSelectOptions();
+    });
 
     switchView('review');
 </script>
