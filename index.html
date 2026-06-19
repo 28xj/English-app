@@ -11,68 +11,55 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f0f0; margin: 0; padding: 60px 20px 20px 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #333; }
         .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; }
         
-        /* 頁籤選單 */
-        .nav { display: flex; gap: 8px; background: #e0e0e0; padding: 4px; border-radius: 14px; }
-        .nav button { flex: 1; padding: 12px 8px; border: none; border-radius: 10px; background: transparent; font-size: 15px; font-weight: bold; color: #666; cursor: pointer; }
+        .nav { display: flex; gap: 4px; background: #e0e0e0; padding: 4px; border-radius: 14px; }
+        .nav button { flex: 1; padding: 12px 4px; border: none; border-radius: 10px; background: transparent; font-size: 14px; font-weight: bold; color: #666; cursor: pointer; }
         .nav button.active { background: white; color: #1a1a1a; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         
-        /* 卡片主體 */
-        .card-view, .input-view, .list-view { background: white; border-radius: 24px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 440px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #eee; position: relative; }
+        .card-view, .input-view, .list-view, .quiz-view { background: white; border-radius: 24px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 440px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #eee; position: relative; }
         .hidden { display: none !important; }
         
-        /* 複習模式卡片 */
-        .flashcard { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 15px; margin-bottom: 20px; }
-        .card-row { width: 100%; padding: 15px; background: #fafafa; border-radius: 14px; border: 1px solid #eaeaea; }
+        .flashcard { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 12px; margin-bottom: 20px; }
+        .card-row { width: 100%; padding: 14px; background: #fafafa; border-radius: 14px; border: 1px solid #eaeaea; position: relative; }
         .label-text { font-size: 11px; color: #999; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; letter-spacing: 0.5px; }
         .word-present { font-size: 28px; font-weight: bold; color: #1a1a1a; word-break: break-word; }
         .word-pronounce { font-size: 20px; font-weight: bold; color: #555; word-break: break-word; }
         .word-trans { font-size: 20px; color: #444; word-break: break-word; }
         
-        /* 按鈕樣式 */
+        /* 語音發音小按鈕 */
+        .btn-speak { background: #e0e0e0; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; margin-left: 8px; vertical-align: middle; }
+        
         .actions { display: flex; gap: 15px; }
         .btn-action { flex: 1; padding: 16px; border: 2px solid #ccc; border-radius: 16px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-delta { background: #eee; color: #333; border-color: #ccc; }
         .btn-circle { background: #fff; color: #333; border-color: #333; }
         
-        /* 輸入框表單 */
-        .form-container { display: flex; flex-direction: column; gap: 14px; flex: 1; justify-content: center; }
+        .form-container { display: flex; flex-direction: column; gap: 12px; flex: 1; justify-content: center; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: 13px; font-weight: bold; color: #555; }
         .form-group input { padding: 14px; border: 2px solid #ddd; border-radius: 12px; font-size: 16px; outline: none; color: #333; background: #fafafa; }
         .form-group input:focus { border-color: #333; background: white; }
+        
+        .quiz-input { width: 100%; padding: 14px; border: 2px solid #333; border-radius: 12px; font-size: 18px; text-align: center; outline: none; font-weight: bold; margin-top: 10px; }
+        
+        /* 測驗結果顯示區 */
+        .quiz-result-box { margin-top: 10px; padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 16px; display: none; }
+        .quiz-result-success { background: #e8f5e9; color: #2e7d32; }
+        .quiz-result-fail { background: #ffebee; color: #c62828; }
+        
         .btn-submit { background: #333; color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
         .stats { font-size: 12px; color: #888; text-align: center; font-weight: 500; }
         
-        /* 單字清單排版 */
         .list-wrapper { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-        .list-container { flex: 1; overflow-y: auto; max-height: 320px; display: flex; flex-direction: column; gap: 10px; padding-right: 2px; }
+        .list-container { flex: 1; overflow-y: auto; max-height: 320px; display: flex; flex-direction: column; gap: 10px; }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: #f9f9f9; border-radius: 14px; border: 1px solid #eaeaea; }
-        .list-info { display: flex; flex-direction: column; gap: 4px; max-width: 65%; }
+        .list-info { display: flex; flex-direction: column; gap: 4px; max-width: 60%; }
         .list-word { font-weight: bold; font-size: 16px; color: #1a1a1a; word-break: break-word; }
         .list-details { font-size: 12px; color: #666; word-break: break-word; }
-        .list-btns { display: flex; gap: 6px; }
-        .btn-edit-item { background: #e0e0e0; color: #333; border: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .btn-delete-item { background: #ff4d4d; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .list-btns { display: flex; gap: 4px; align-items: center; }
+        .btn-edit-item { background: #e0e0e0; color: #333; border: none; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-delete-item { background: #ff4d4d; color: white; border: none; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
         
-        /* 彈出提示動畫 */
-        .toast-animation {
-            position: fixed;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.7);
-            background: rgba(26, 26, 26, 0.95);
-            color: #ffffff;
-            padding: 16px 32px;
-            border-radius: 50px;
-            font-size: 22px;
-            font-weight: bold;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            pointer-events: none;
-            opacity: 0;
-            white-space: nowrap;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 9999;
-        }
+        .toast-animation { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(0.7); background: rgba(26, 26, 26, 0.95); color: #ffffff; padding: 16px 32px; border-radius: 50px; font-size: 22px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.15); pointer-events: none; opacity: 0; white-space: nowrap; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
         .toast-animation.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     </style>
 </head>
@@ -82,30 +69,49 @@
 
 <div class="container">
     <div class="nav">
-        <button id="nav-review" class="active" onclick="switchView('review')">複習單字</button>
-        <button id="nav-add" onclick="switchView('add')">新增單字</button>
-        <button id="nav-list" onclick="switchView('list')">單字清單</button>
+        <button id="nav-review" class="active" onclick="switchView('review')">複習</button>
+        <button id="nav-quiz" onclick="switchView('quiz')">測驗</button>
+        <button id="nav-add" onclick="switchView('add')">新增</button>
+        <button id="nav-list" onclick="switchView('list')">清單</button>
     </div>
 
     <div id="view-review" class="card-view">
-        <div class="stats" id="stats-text">總單字量: -- | 本輪剩餘: -- 張</div>
+        <div class="stats" id="stats-text">載入中...</div>
         <div class="flashcard">
             <div class="card-row">
                 <div class="label-text">單字 / 句子</div>
-                <div class="word-present" id="card-word">Work</div>
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <span class="word-present" id="card-word">Work</span>
+                    <button class="btn-speak" onclick="speakText('card-word')">🔊</button>
+                </div>
             </div>
-            <div class="card-row">
-                <div class="label-text">空耳唸法</div>
-                <div class="word-pronounce" id="card-pronounce">沃克</div>
-            </div>
-            <div class="card-row">
-                <div class="label-text">中文意思</div>
-                <div class="word-trans" id="card-trans">工作</div>
-            </div>
+            <div class="card-row"><div class="label-text">空耳唸法</div><div class="word-pronounce" id="card-pronounce">沃克</div></div>
+            <div class="card-row"><div class="label-text">中文意思</div><div class="word-trans" id="card-trans">工作</div></div>
         </div>
         <div class="actions">
             <button class="btn-action btn-delta" onclick="triggerScore('delta')">不熟</button>
             <button class="btn-action btn-circle" onclick="triggerScore('circle')">懂了</button>
+        </div>
+    </div>
+
+    <div id="view-quiz" class="quiz-view hidden">
+        <div class="stats" id="quiz-stats-text">測驗準備中...</div>
+        <div class="flashcard">
+            <div class="card-row"><div class="label-text">中文意思提示</div><div class="word-trans" id="quiz-trans">工作</div></div>
+            <div class="card-row">
+                <div class="label-text">空耳唸法提示</div>
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <span class="word-pronounce" id="quiz-pronounce">沃克</span>
+                    <button class="btn-speak" id="quiz-speak-btn" onclick="speakCurrentQuiz()">🔊</button>
+                </div>
+            </div>
+            <div class="card-row"><div class="label-text">請填空題目</div><div class="word-present" id="quiz-question" style="letter-spacing: 2px;">W_rk</div></div>
+        </div>
+        <div>
+            <div id="quiz-result-panel" class="quiz-result-box"></div>
+            
+            <input type="text" id="quiz-answer-input" class="quiz-input" placeholder="請輸入答案" autocomplete="off" autocapitalize="none">
+            <button class="btn-submit" id="btn-quiz-main" onclick="checkQuizAnswer()">檢查答案</button>
         </div>
     </div>
 
@@ -114,64 +120,85 @@
             <h3 id="form-title" style="margin: 0 0 10px 0; font-size: 16px; text-align: center; color: #555;">新增單字庫</h3>
             <input type="hidden" id="edit-id">
             <div class="form-group">
-                <label>第一個框：單字/句子</label>
-                <input type="text" id="in-word" placeholder="請輸入單字或句子" autocomplete="off">
+                <label>第一個框：單字/句子 <button class="btn-speak" onclick="speakText('in-word')">🔊 試聽</button></label>
+                <input type="text" id="in-word" placeholder="例如: Work" autocomplete="off">
             </div>
-            <div class="form-group">
-                <label>第二個框：空耳唸法</label>
-                <input type="text" id="in-pronounce" placeholder="請輸入空耳諧音唸法" autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>第三個框：中文意思</label>
-                <input type="text" id="in-trans" placeholder="請輸入中文意思" autocomplete="off">
-            </div>
+            <div class="form-group"><label>第二個框：空耳唸法</label><input type="text" id="in-pronounce" placeholder="例如: 沃克" autocomplete="off"></div>
+            <div class="form-group"><label>第三個框：中文意思</label><input type="text" id="in-trans" placeholder="例如: 工作" autocomplete="off"></div>
         </div>
         <button class="btn-submit" id="btn-submit-text" onclick="saveWord()">儲存單字</button>
     </div>
 
     <div id="view-list" class="list-view hidden">
         <div class="list-wrapper">
-            <div class="stats" style="text-align: left; margin-bottom: 5px;" id="list-count-text">目前單字庫共有: 0 個單字</div>
+            <div class="stats" style="text-align: left; margin-bottom: 5px;" id="list-count-text">共有 0 個單字</div>
             <div class="list-container" id="list-container"></div>
         </div>
-        <div style="height: 5px;"></div>
     </div>
 </div>
 
 <script>
-    // 預設核心初始資料
-    const defaultWords = [
-        { id: 1, word: "Work", pronounce: "沃克", trans: "工作", status: "new" }
-    ];
-
+    const defaultWords = [{ id: 1, word: "Work", pronounce: "沃克", trans: "工作", status: "new" }];
     let words = JSON.parse(localStorage.getItem('gm_words')) || defaultWords;
+    
     let pool = [];
     let currentWord = null;
+    
+    let quizPool = [];
+    let currentQuizWord = null;
+    let currentQuizAnswer = ""; 
+    let isQuizAnswered = false; // 記錄目前是否處於顯示答案狀態
 
-    // 儲存資料庫到手機晶片
-    function saveToStorage() {
-        localStorage.setItem('gm_words', JSON.stringify(words));
+    function saveToStorage() { localStorage.setItem('gm_words', JSON.stringify(words)); }
+
+    // 原生英文發音發聲功能
+    function speakText(elementId) {
+        const element = document.getElementById(elementId);
+        let text = (element.tagName === "INPUT") ? element.value.trim() : element.innerText.trim();
+        if (!text || text === "-") return;
+        
+        // 過濾掉挖空底線符號，避免發音出錯
+        text = text.replace(/_/g, "");
+        if (!text) return;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-US"; // 強制設定標準美式英文
+        utterance.rate = 0.85;    // 速度稍微調慢一點，方便聽懂
+        window.speechSynthesis.speak(utterance);
+    }
+    
+    // 測驗專用發音（直接唸出原本正確的完整單字）
+    function speakCurrentQuiz() {
+        if (!currentQuizWord) return;
+        const utterance = new SpeechSynthesisUtterance(currentQuizWord.word);
+        utterance.lang = "en-US";
+        utterance.rate = 0.85;
+        window.speechSynthesis.speak(utterance);
     }
 
-    // 切換分頁控制
     function switchView(view) {
         document.getElementById('view-review').classList.add('hidden');
+        document.getElementById('view-quiz').classList.add('hidden');
         document.getElementById('view-add').classList.add('hidden');
         document.getElementById('view-list').classList.add('hidden');
         
         document.getElementById('nav-review').classList.remove('active');
+        document.getElementById('nav-quiz').classList.remove('active');
         document.getElementById('nav-add').classList.remove('active');
         document.getElementById('nav-list').classList.remove('active');
 
         if (view === 'review') {
             document.getElementById('view-review').classList.remove('hidden');
             document.getElementById('nav-review').classList.add('active');
-            buildPool();
-            nextCard();
+            buildPool(); nextCard();
+        } else if (view === 'quiz') {
+            document.getElementById('view-quiz').classList.remove('hidden');
+            document.getElementById('nav-quiz').classList.add('active');
+            resetQuizState();
+            buildQuizPool(); nextQuiz();
         } else if (view === 'add') {
             document.getElementById('view-add').classList.remove('hidden');
             document.getElementById('nav-add').classList.add('active');
-            // 預設切回新增狀態
             document.getElementById('form-title').innerText = "新增單字庫";
             document.getElementById('btn-submit-text').innerText = "儲存單字";
             document.getElementById('edit-id').value = "";
@@ -182,152 +209,189 @@
         }
     }
 
-    // 建立隨機抽卡池
+    // --- 複習模式 ---
     function buildPool() {
         let circles = words.filter(w => w.status === 'circle');
         let deltas = words.filter(w => w.status === 'delta');
         let news = words.filter(w => w.status === 'new');
-
         pool = [];
-        // 不熟的權重加重出現 3 次
         deltas.forEach(w => { for(let i=0; i<3; i++) pool.push({...w}); });
         news.forEach(w => pool.push({...w}));
-
-        if (pool.length === 0 && circles.length > 0) {
-            circles.forEach(w => { w.status = 'new'; pool.push({...w}); });
-            saveToStorage();
-        }
-        
-        if (pool.length === 0 && words.length > 0) {
-            words.forEach(w => { w.status = 'new'; pool.push({...w}); });
-            saveToStorage();
-        }
-
+        if (pool.length === 0 && circles.length > 0) { circles.forEach(w => { w.status = 'new'; pool.push({...w}); }); saveToStorage(); }
+        if (pool.length === 0 && words.length > 0) { words.forEach(w => { w.status = 'new'; pool.push({...w}); }); saveToStorage(); }
         pool.sort(() => Math.random() - 0.5);
         updateStats();
     }
-
-    // 更新統計字數
-    function updateStats() {
-        document.getElementById('stats-text').innerText = `總單字量: ${words.length} | 本輪剩餘: ${pool.length} 張`;
-    }
-
-    // 顯示下一張字卡
+    function updateStats() { document.getElementById('stats-text').innerText = `總單字量: ${words.length} | 本輪剩餘: ${pool.length} 張`; }
     function nextCard() {
-        if (pool.length === 0) {
-            buildPool();
-        }
-
-        if (pool.length === 0) {
-            document.getElementById('card-word').innerText = "目前沒有單字，快去新增吧！";
-            document.getElementById('card-pronounce').innerText = "-";
-            document.getElementById('card-trans').innerText = "-";
-            currentWord = null;
-            return;
-        }
-
+        if (pool.length === 0) buildPool();
+        if (pool.length === 0) { document.getElementById('card-word').innerText = "目前沒有單字，快去新增吧！"; document.getElementById('card-pronounce').innerText = "-"; document.getElementById('card-trans').innerText = "-"; currentWord = null; return; }
         currentWord = pool.shift();
         document.getElementById('card-word').innerText = currentWord.word;
         document.getElementById('card-pronounce').innerText = currentWord.pronounce || "未填寫";
         document.getElementById('card-trans').innerText = currentWord.trans;
         updateStats();
     }
-
-    // 評分與彈出文字特效
     function triggerScore(type) {
         if (!currentWord) return;
-
-        const toast = document.getElementById('toast');
-        toast.innerText = type === 'circle' ? "你太棒了！" : "加油！你可以的";
-        toast.classList.add('show');
-        setTimeout(() => { toast.classList.remove('show'); }, 800);
-
+        showToast(type === 'circle' ? "你太棒了！" : "加油！你可以的");
         let target = words.find(w => w.id === currentWord.id);
-        if (target) {
-            target.status = type;
-            saveToStorage();
-        }
+        if (target) { target.status = type; saveToStorage(); }
         nextCard();
     }
 
-    // 儲存單字（相容「新增」與「修改」）
+    // --- 智慧測驗核心邏輯（全新修正版：免彈窗、加強答錯隨機塞 3 次） ---
+    function buildQuizPool() {
+        quizPool = [];
+        words.forEach(w => { quizPool.push({...w}); });
+        quizPool.sort(() => Math.random() - 0.5);
+        updateQuizStats();
+    }
+    function updateQuizStats() {
+        document.getElementById('quiz-stats-text').innerText = `測驗題庫: ${words.length} 題 | 剩餘: ${quizPool.length} 題`;
+    }
+    
+    function generateQuestion(originalStr) {
+        let str = originalStr.trim();
+        if (str.includes(" ")) {
+            let wordsArr = str.split(/\s+/);
+            let randomIndex = Math.floor(Math.random() * wordsArr.length);
+            currentQuizAnswer = wordsArr[randomIndex];
+            wordsArr[randomIndex] = "_______";
+            return wordsArr.join(" ");
+        } else {
+            if(str.length <= 1) { currentQuizAnswer = str; return "_"; }
+            let randomIndex = Math.floor(Math.random() * str.length);
+            currentQuizAnswer = str[randomIndex];
+            let charArray = str.split("");
+            charArray[randomIndex] = "_";
+            return charArray.join("");
+        }
+    }
+
+    function nextQuiz() {
+        resetQuizState();
+        if (quizPool.length === 0) buildQuizPool();
+        if (quizPool.length === 0) {
+            document.getElementById('quiz-question').innerText = "請先去新增單字唷！";
+            document.getElementById('quiz-pronounce').innerText = "-";
+            document.getElementById('quiz-trans').innerText = "-";
+            currentQuizWord = null;
+            return;
+        }
+        currentQuizWord = quizPool.shift();
+        document.getElementById('quiz-trans').innerText = currentQuizWord.trans;
+        document.getElementById('quiz-pronounce').innerText = currentQuizWord.pronounce || "無空耳提示";
+        document.getElementById('quiz-question').innerText = generateQuestion(currentQuizWord.word);
+        updateQuizStats();
+    }
+
+    function resetQuizState() {
+        isQuizAnswered = false;
+        const panel = document.getElementById('quiz-result-panel');
+        panel.style.display = "none";
+        panel.className = "quiz-result-box";
+        
+        const mainBtn = document.getElementById('btn-quiz-main');
+        mainBtn.innerText = "檢查答案";
+        mainBtn.style.background = "#333";
+        
+        document.getElementById('quiz-answer-input').value = "";
+        document.getElementById('quiz-answer-input').style.display = "block";
+    }
+
+    function checkQuizAnswer() {
+        if (!currentQuizWord) return;
+
+        // 如果目前已經顯示結果，這顆按鈕的功能就變成「下一題」
+        if (isQuizAnswered) {
+            nextQuiz();
+            return;
+        }
+
+        const userAns = document.getElementById('quiz-answer-input').value.trim();
+        const panel = document.getElementById('quiz-result-panel');
+        const mainBtn = document.getElementById('btn-quiz-main');
+        
+        isQuizAnswered = true; // 狀態切換為：已回答
+
+        // 隱藏輸入框，騰出位置秀答案
+        document.getElementById('quiz-answer-input').style.display = "none";
+
+        if (userAns.toLowerCase() === currentQuizAnswer.toLowerCase()) {
+            showToast("你好棒！");
+            panel.innerText = `🟢 答對了！答案就是：${currentQuizAnswer}`;
+            panel.classList.add('quiz-result-success');
+            panel.style.display = "block";
+            
+            let target = words.find(w => w.id === currentQuizWord.id);
+            if(target) { target.status = 'circle'; saveToStorage(); }
+        } else {
+            showToast("加油！你可以的");
+            panel.innerText = `🔴 答錯了！正確答案是：${currentQuizAnswer}`;
+            panel.classList.add('quiz-result-fail');
+            panel.style.display = "block";
+            
+            // 標記複習狀態為不熟
+            let target = words.find(w => w.id === currentQuizWord.id);
+            if(target) { target.status = 'delta'; saveToStorage(); }
+            
+            // 答錯了，在測驗卡池內隨機追加 3 次
+            for(let i=0; i<3; i++) {
+                quizPool.push({...currentQuizWord});
+            }
+            quizPool.sort(() => Math.random() - 0.5);
+            updateQuizStats();
+        }
+
+        // 改變按鈕文字，讓使用者自己點「下一題」
+        mainBtn.innerText = "下一題";
+        mainBtn.style.background = "#0080ff";
+    }
+
+    // --- 新增 / 修改與清單邏輯 ---
     function saveWord() {
         const word = document.getElementById('in-word').value.trim();
         const pronounce = document.getElementById('in-pronounce').value.trim();
         const trans = document.getElementById('in-trans').value.trim();
         const editId = document.getElementById('edit-id').value;
 
-        if (!word || !pronounce || !trans) {
-            alert('三個框框都要填滿唷！');
-            return;
-        }
+        if (!word || !pronounce || !trans) { alert('三個框框都要填滿唷！'); return; }
 
         if (editId) {
-            // 執行修改邏輯
             let target = words.find(w => w.id == editId);
-            if (target) {
-                target.word = word;
-                target.pronounce = pronounce;
-                target.trans = trans;
-            }
-            const toast = document.getElementById('toast');
-            toast.innerText = "修改成功！";
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 800);
+            if (target) { target.word = word; target.pronounce = pronounce; target.trans = trans; }
+            showToast("修改成功！");
         } else {
-            // 執行全新新增邏輯
-            const newW = {
-                id: Date.now(),
-                word: word,
-                pronounce: pronounce,
-                trans: trans,
-                status: 'new'
-            };
+            const newW = { id: Date.now(), word: word, pronounce: pronounce, trans: trans, status: 'new' };
             words.push(newW);
-            const toast = document.getElementById('toast');
-            toast.innerText = "新增成功！";
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 800);
+            showToast("新增成功！語音測驗已建妥");
         }
 
         saveToStorage();
-
-        // 清空欄位
         document.getElementById('in-word').value = '';
         document.getElementById('in-pronounce').value = '';
         document.getElementById('in-trans').value = '';
         document.getElementById('edit-id').value = '';
-
-        // 自動跳回首頁
         switchView('review');
     }
 
-    // 渲染單字清單畫面（含編輯與刪除按鈕）
     function renderList() {
         const container = document.getElementById('list-container');
         document.getElementById('list-count-text').innerText = `目前單字庫共有: ${words.length} 個單字`;
         container.innerHTML = '';
-
-        if (words.length === 0) {
-            container.innerHTML = '<div style="color: #999; text-align: center; padding: 4px; font-size: 14px;">清單目前是空的喔</div>';
-            return;
-        }
-
-        // 倒序排列，讓最新加的字在最上面
+        if (words.length === 0) { container.innerHTML = '<div style="color: #999; text-align: center; padding: 10px;">清單目前是空的喔</div>'; return; }
         const displayList = [...words].reverse();
-
         displayList.forEach(w => {
-            const item = document.createElement('div');
-            item.className = 'list-item';
-            
+            const item = document.createElement('div'); item.className = 'list-item';
             let statusBadge = w.status === 'circle' ? '● 懂了' : (w.status === 'delta' ? '▲ 不熟' : '新加入');
-            
             item.innerHTML = `
                 <div class="list-info">
                     <div class="list-word">${w.word}</div>
                     <div class="list-details">唸法: ${w.pronounce} | 意思: ${w.trans} (${statusBadge})</div>
                 </div>
                 <div class="list-btns">
+                    <button class="btn-edit-item" style="background:#222; color:white; border-radius:50%; width:28px; height:28px; border:none; margin-right:4px;" onclick="speakDirect('${w.word.replace(/'/g, "\\'")}')">🔊</button>
                     <button class="btn-edit-item" onclick="startEdit(${w.id})">改</button>
                     <button class="btn-delete-item" onclick="deleteWord(${w.id})">刪</button>
                 </div>
@@ -336,44 +400,37 @@
         });
     }
 
-    // 觸發單字修改動作
+    function speakDirect(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-US";
+        utterance.rate = 0.85;
+        window.speechSynthesis.speak(utterance);
+    }
+
     function startEdit(id) {
         let target = words.find(w => w.id === id);
         if (!target) return;
-
-        // 填入資料並將模式切換為修改
         document.getElementById('in-word').value = target.word;
         document.getElementById('in-pronounce').value = target.pronounce;
         document.getElementById('in-trans').value = target.trans;
         document.getElementById('edit-id').value = target.id;
-
         document.getElementById('form-title').innerText = "修改單字內容";
         document.getElementById('btn-submit-text').innerText = "確認修改";
-
-        // 跳轉到輸入分頁
-        document.getElementById('view-list').classList.add('hidden');
-        document.getElementById('view-add').classList.remove('hidden');
-        document.getElementById('nav-list').classList.remove('active');
-        document.getElementById('nav-add').classList.add('active');
+        switchView('add');
     }
 
-    // 刪除單個單字動作
     function deleteWord(id) {
         if (confirm('確定要刪除這個單字嗎？')) {
-            words = words.filter(w => w.id !== id);
-            saveToStorage();
-            renderList();
-            
-            const toast = document.getElementById('toast');
-            toast.innerText = "已刪除";
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 800);
+            words = words.filter(w => w.id !== id); saveToStorage(); renderList(); showToast("已刪除");
         }
     }
 
-    // 初始化啟動
+    function showToast(text) {
+        const toast = document.getElementById('toast'); toast.innerText = text; toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 800);
+    }
+
     switchView('review');
 </script>
-
 </body>
 </html>
