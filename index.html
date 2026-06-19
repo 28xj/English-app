@@ -25,7 +25,6 @@
         .word-pronounce { font-size: 20px; font-weight: bold; color: #555; word-break: break-word; }
         .word-trans { font-size: 20px; color: #444; word-break: break-word; }
         
-        /* 語音發音小按鈕 */
         .btn-speak { background: #e0e0e0; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; margin-left: 8px; vertical-align: middle; }
         
         .actions { display: flex; gap: 15px; }
@@ -41,7 +40,6 @@
         
         .quiz-input { width: 100%; padding: 14px; border: 2px solid #333; border-radius: 12px; font-size: 18px; text-align: center; outline: none; font-weight: bold; margin-top: 10px; }
         
-        /* 測驗結果顯示區 */
         .quiz-result-box { margin-top: 10px; padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 16px; display: none; }
         .quiz-result-success { background: #e8f5e9; color: #2e7d32; }
         .quiz-result-fail { background: #ffebee; color: #c62828; }
@@ -61,11 +59,29 @@
         
         .toast-animation { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(0.7); background: rgba(26, 26, 26, 0.95); color: #ffffff; padding: 16px 32px; border-radius: 50px; font-size: 22px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.15); pointer-events: none; opacity: 0; white-space: nowrap; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
         .toast-animation.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        /* 老師反饋圖片：鎖定在手機螢幕最正中央，尺寸精準為 3cm x 3cm 浮動層 */
+        .teacher-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 3cm;
+            height: 3cm;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            z-index: 10000; /* 確保浮在最上層，不擋住下方的字 */
+            display: none;
+            pointer-events: none; /* 防止點擊干擾 */
+        }
     </style>
 </head>
 <body>
 
 <div id="toast" class="toast-animation"></div>
+
+<img id="teacher-pic" class="teacher-overlay" src="" alt="Teacher Feedback">
 
 <div class="container">
     <div class="nav">
@@ -109,7 +125,6 @@
         </div>
         <div>
             <div id="quiz-result-panel" class="quiz-result-box"></div>
-            
             <input type="text" id="quiz-answer-input" class="quiz-input" placeholder="請輸入答案" autocomplete="off" autocapitalize="none">
             <button class="btn-submit" id="btn-quiz-main" onclick="checkQuizAnswer()">檢查答案</button>
         </div>
@@ -147,27 +162,26 @@
     let quizPool = [];
     let currentQuizWord = null;
     let currentQuizAnswer = ""; 
-    let isQuizAnswered = false; // 記錄目前是否處於顯示答案狀態
+    let isQuizAnswered = false;
+
+    // 圖片網址設定
+    const imgSuccess = "https://lurl.cc/nUtoT";
+    const imgFail = "https://lurl.cc/T2ayH";
 
     function saveToStorage() { localStorage.setItem('gm_words', JSON.stringify(words)); }
 
-    // 原生英文發音發聲功能
     function speakText(elementId) {
         const element = document.getElementById(elementId);
         let text = (element.tagName === "INPUT") ? element.value.trim() : element.innerText.trim();
         if (!text || text === "-") return;
-        
-        // 過濾掉挖空底線符號，避免發音出錯
         text = text.replace(/_/g, "");
         if (!text) return;
-
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "en-US"; // 強制設定標準美式英文
-        utterance.rate = 0.85;    // 速度稍微調慢一點，方便聽懂
+        utterance.lang = "en-US";
+        utterance.rate = 0.85;
         window.speechSynthesis.speak(utterance);
     }
     
-    // 測驗專用發音（直接唸出原本正確的完整單字）
     function speakCurrentQuiz() {
         if (!currentQuizWord) return;
         const utterance = new SpeechSynthesisUtterance(currentQuizWord.word);
@@ -186,6 +200,9 @@
         document.getElementById('nav-quiz').classList.remove('active');
         document.getElementById('nav-add').classList.remove('active');
         document.getElementById('nav-list').classList.remove('active');
+
+        // 切換頁面時強制隱藏老師圖片
+        document.getElementById('teacher-pic').style.display = "none";
 
         if (view === 'review') {
             document.getElementById('view-review').classList.remove('hidden');
@@ -240,7 +257,7 @@
         nextCard();
     }
 
-    // --- 智慧測驗核心邏輯（全新修正版：免彈窗、加強答錯隨機塞 3 次） ---
+    // --- 智慧測驗模式（整合老師圖片彈出功能） ---
     function buildQuizPool() {
         quizPool = [];
         words.forEach(w => { quizPool.push({...w}); });
@@ -298,12 +315,23 @@
         
         document.getElementById('quiz-answer-input').value = "";
         document.getElementById('quiz-answer-input').style.display = "block";
+        document.getElementById('teacher-pic').style.display = "none"; // 隱藏圖片
+    }
+
+    function showTeacherImage(isCorrect) {
+        const imgEl = document.getElementById('teacher-pic');
+        imgEl.src = isCorrect ? imgSuccess : imgFail;
+        imgEl.style.display = "block";
+        
+        // 1秒（1000毫秒）後自動隱藏
+        setTimeout(() => {
+            imgEl.style.display = "none";
+        }, 1000);
     }
 
     function checkQuizAnswer() {
         if (!currentQuizWord) return;
 
-        // 如果目前已經顯示結果，這顆按鈕的功能就變成「下一題」
         if (isQuizAnswered) {
             nextQuiz();
             return;
@@ -313,13 +341,13 @@
         const panel = document.getElementById('quiz-result-panel');
         const mainBtn = document.getElementById('btn-quiz-main');
         
-        isQuizAnswered = true; // 狀態切換為：已回答
-
-        // 隱藏輸入框，騰出位置秀答案
+        isQuizAnswered = true;
         document.getElementById('quiz-answer-input').style.display = "none";
 
         if (userAns.toLowerCase() === currentQuizAnswer.toLowerCase()) {
             showToast("你好棒！");
+            showTeacherImage(true); // 跳出答對圖片
+            
             panel.innerText = `🟢 答對了！答案就是：${currentQuizAnswer}`;
             panel.classList.add('quiz-result-success');
             panel.style.display = "block";
@@ -328,15 +356,15 @@
             if(target) { target.status = 'circle'; saveToStorage(); }
         } else {
             showToast("加油！你可以的");
+            showTeacherImage(false); // 跳出答錯圖片
+            
             panel.innerText = `🔴 答錯了！正確答案是：${currentQuizAnswer}`;
             panel.classList.add('quiz-result-fail');
             panel.style.display = "block";
             
-            // 標記複習狀態為不熟
             let target = words.find(w => w.id === currentQuizWord.id);
             if(target) { target.status = 'delta'; saveToStorage(); }
             
-            // 答錯了，在測驗卡池內隨機追加 3 次
             for(let i=0; i<3; i++) {
                 quizPool.push({...currentQuizWord});
             }
@@ -344,7 +372,6 @@
             updateQuizStats();
         }
 
-        // 改變按鈕文字，讓使用者自己點「下一題」
         mainBtn.innerText = "下一題";
         mainBtn.style.background = "#0080ff";
     }
@@ -365,7 +392,7 @@
         } else {
             const newW = { id: Date.now(), word: word, pronounce: pronounce, trans: trans, status: 'new' };
             words.push(newW);
-            showToast("新增成功！語音測驗已建妥");
+            showToast("新增成功！");
         }
 
         saveToStorage();
