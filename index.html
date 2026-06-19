@@ -3,28 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hello english</title>
+    <title>GM 的單字卡</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f0f0; margin: 0; padding: 60px 20px 20px 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #333; }
-        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f0f0; margin: 0; padding: 60px 20px 80px 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #333; position: relative; }
+        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; z-index: 1; }
         
         .nav { display: flex; gap: 3px; background: #e0e0e0; padding: 4px; border-radius: 14px; width: 100%; }
         .nav button { flex: 1; padding: 12px 2px; border: none; border-radius: 10px; background: transparent; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; white-space: nowrap; }
         .nav button.active { background: white; color: #1a1a1a; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         
-        .card-view, .input-view, .list-view, .quiz-view, .sentence-view { background: white; border-radius: 24px; padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 460px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #eee; position: relative; }
+        .card-view, .input-view, .list-view, .quiz-view, .sentence-view { background: white; border-radius: 24px; padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 480px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #eee; position: relative; }
         .hidden { display: none !important; }
         
         .flashcard { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 10px; margin-bottom: 15px; }
         .card-row { width: 100%; padding: 12px; background: #fafafa; border-radius: 14px; border: 1px solid #eaeaea; position: relative; }
         .label-text { font-size: 11px; color: #999; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; letter-spacing: 0.5px; }
         .word-present { font-size: 24px; font-weight: bold; color: #1a1a1a; word-break: break-word; }
-        .word-pronounce { font-size: 19px; font-weight: bold; color: #555; word-break: break-word; }
         .word-trans { font-size: 19px; color: #444; word-break: break-word; }
         
+        /* 空耳可點擊修改之高質感輸入框樣式 */
+        .inline-edit-pronounce { width: 100%; border: none; background: transparent; text-align: center; font-size: 18px; font-weight: bold; color: #555; outline: none; padding: 4px; border-bottom: 1px dashed transparent; transition: all 0.2s; }
+        .inline-edit-pronounce:focus { border-bottom-color: #0044ff; color: #000; background: #fff; border-radius: 6px; }
+
         .tag-badge { display: inline-block; padding: 3px 8px; background: #333; color: white; border-radius: 6px; font-size: 11px; font-weight: bold; margin-top: 4px; }
         .part-badge { display: inline-block; padding: 3px 8px; background: #777; color: white; border-radius: 6px; font-size: 11px; font-weight: bold; margin-top: 4px; margin-left: 4px; }
         
@@ -37,7 +40,7 @@
         
         .form-container { display: flex; flex-direction: column; gap: 8px; flex: 1; justify-content: center; }
         .form-group { display: flex; flex-direction: column; gap: 4px; }
-        .form-group label { font-size: 13px; font-weight: bold; color: #555; }
+        .form-group label { font-size: 13px; font-weight: bold; color: #555; display: flex; align-items: center; }
         .form-group input, .form-group select { padding: 11px; border: 2px solid #ddd; border-radius: 12px; font-size: 15px; outline: none; color: #333; background: #fafafa; width: 100%; }
         
         .quiz-input { width: 100%; padding: 14px; border: 2px solid #333; border-radius: 12px; font-size: 18px; text-align: center; outline: none; font-weight: bold; margin-top: 10px; }
@@ -48,6 +51,9 @@
         .btn-submit { background: #333; color: white; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
         .stats { font-size: 12px; color: #888; text-align: center; font-weight: 500; }
         
+        /* 圖三專用：無框、字體小、深藍色提示文字 */
+        .quiz-clean-hint { font-size: 14px; font-weight: bold; color: #0044ff; text-align: center; margin-bottom: 2px; letter-spacing: 0.3px; }
+
         .filter-bar { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; width: 100%; }
         .btn-filter { padding: 6px 12px; border: 1px solid #ccc; background: white; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; font-weight: bold; color: #555; }
         .btn-filter.active { background: #333; color: white; border-color: #333; }
@@ -68,6 +74,9 @@
         
         .toast-animation { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(0.7); background: rgba(26, 26, 26, 0.95); color: #ffffff; padding: 16px 32px; border-radius: 50px; font-size: 22px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.15); pointer-events: none; opacity: 0; white-space: nowrap; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
         .toast-animation.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        /* 畫面置中最下方開發者簽名標籤 */
+        .footer-signature { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #999; font-weight: bold; letter-spacing: 1px; white-space: nowrap; z-index: 0; }
     </style>
 </head>
 <body>
@@ -98,7 +107,11 @@
                 </div>
                 <div><span class="tag-badge" id="card-tag">生活</span><span class="part-badge" id="card-part">動詞</span></div>
             </div>
-            <div class="card-row"><div class="label-text">空耳唸法</div><div class="word-pronounce" id="card-pronounce">沃克</div></div>
+            <!-- 複習介面空耳改為可直接編輯 -->
+            <div class="card-row">
+                <div class="label-text">空耳唸法 (點擊可直接修改)</div>
+                <input type="text" id="card-pronounce" class="inline-edit-pronounce" value="沃克" onchange="updatePronounceDirect('review', this.value)">
+            </div>
             <div class="card-row"><div class="label-text">中文意思</div><div class="word-trans" id="card-trans">工作</div></div>
         </div>
         <div class="actions">
@@ -114,19 +127,18 @@
             <div class="stats" id="quiz-score-text" style="color: #2e7d32; margin-top: 2px;">本日戰績：0 答對 / 0 總題</div>
         </div>
         <div class="flashcard">
-            <!-- 精準的空格詞性提示區 -->
-            <div class="card-row" style="background: #fff8e1; border-color: #ffe082;">
-                <div class="label-text" style="color:#b78103;">💡 填空詞性大提示</div>
-                <div style="font-weight: bold; font-size: 16px; color:#b78103;" id="quiz-part-hint">要填寫的是：-</div>
-            </div>
-            <div class="card-row">
+            <!-- 圖三修正：提示變小、無大框、深藍色、移除清單(生活)字樣 -->
+            <div class="quiz-clean-hint" id="quiz-part-hint">要填寫的是：-</div>
+            
+            <div class="card-row" style="margin-top: 5px;">
                 <div class="label-text">中文意思提示</div>
                 <div class="word-trans" id="quiz-trans">工作</div>
             </div>
+            <!-- 測驗介面空耳改為可直接編輯 -->
             <div class="card-row">
-                <div class="label-text">空耳唸法提示</div>
+                <div class="label-text">空耳唸法提示 (點擊可直接修改)</div>
                 <div style="display: flex; align-items: center; justify-content: center;">
-                    <span class="word-pronounce" id="quiz-pronounce">沃克</span>
+                    <input type="text" id="quiz-pronounce" class="inline-edit-pronounce" value="沃克" onchange="updatePronounceDirect('quiz', this.value)">
                     <button class="btn-speak" onclick="speakCurrentQuiz()">🔊</button>
                 </div>
             </div>
@@ -146,21 +158,23 @@
             <div class="card-row">
                 <div class="label-text">生成的常規句子 (Auto Sentence)</div>
                 <div style="display: flex; align-items: center; justify-content: center;">
-                    <span class="word-present" id="gen-sentence-text" style="font-size: 21px; color: #1a1a1a;">點擊下方按鈕開始造句</span>
+                    <span class="word-present" id="gen-sentence-text" style="font-size: 20px; color: #1a1a1a;">點擊下方按鈕開始造句</span>
                     <button class="btn-speak" id="gen-speak-btn" style="display:none;" onclick="speakDirect(document.getElementById('gen-sentence-text').innerText)">🔊</button>
                 </div>
             </div>
             <div class="card-row">
                 <div class="label-text">全自動中文對照意思</div>
-                <div class="word-trans" id="gen-trans-text" style="font-size: 17px; color: #444;">-</div>
+                <div class="word-trans" id="gen-trans-text" style="font-size: 16px; color: #444;">-</div>
             </div>
+            <!-- 圖一修正：生成的造句空耳欄位改為可以直接點擊修改 -->
             <div class="card-row">
-                <div class="label-text">智慧空耳唸法拼音</div>
-                <div class="word-pronounce" id="gen-pronounce-text" style="font-size: 16px; color: #666;">-</div>
+                <div class="label-text">智慧空耳唸法拼音 (點擊可直接修改)</div>
+                <input type="text" id="gen-pronounce-text" class="inline-edit-pronounce" value="-" style="font-size: 15px;">
             </div>
         </div>
         <div>
-            <button class="btn-submit" id="btn-add-to-pool" style="display:none; background:#2e7d32; margin-bottom: 8px;" onclick="addGeneratedToPool()">📥 這句很實用，加入複習與測驗！</button>
+            <!-- 圖一修正：綠色按鈕改成深藍色質感按鈕 (#0044ff) -->
+            <button class="btn-submit" id="btn-add-to-pool" style="display:none; background:#0044ff; margin-bottom: 8px;" onclick="addGeneratedToPool()">📥 這句很實用，加入複習與測驗！</button>
             <button class="btn-submit" style="background:#333; margin-top:0;" onclick="generateSmartSentence()">🔥 開始隨機生成常規語句</button>
         </div>
     </div>
@@ -171,22 +185,33 @@
             <h3 id="form-title" style="margin: 0 0 5px 0; font-size: 16px; text-align: center; color: #555;">新增單字庫</h3>
             <input type="hidden" id="edit-id">
             <div class="form-group">
-                <label>第一個框：單字/句子 <button class="btn-speak" onclick="speakText('in-word')">🔊 試聽</button></label>
+                <!-- 圖二修正：只留喇叭符號，把「試聽」兩個字拿掉 -->
+                <label>第一個框：單字/句子 <button class="btn-speak" style="width:26px; height:26px; font-size:11px; margin-left:4px;" onclick="speakText('in-word')">🔊</button></label>
                 <input type="text" id="in-word" placeholder="例如: Work" autocomplete="off">
             </div>
-            <div class="form-group"><label>第二個框：空耳唸法</label><input type="text" id="in-pronounce" placeholder="例如: 沃克" autocomplete="off"></div>
+            <div class="form-group"><label>第二個框：空耳唸法</label><input type="text" id="in-pronounce" placeholder="placeholder: 例如: 沃克" autocomplete="off"></div>
             <div class="form-group"><label>第三個框：中文意思</label><input type="text" id="in-trans" placeholder="例如: 工作" autocomplete="off"></div>
             
             <div style="display: flex; gap: 8px; width:100%;">
-                <div class="form-group" style="flex:1;">
-                    <label>單字詞性</label>
-                    <select id="in-part">
-                        <option value="動詞">動詞 (v.)</option>
-                        <option value="名詞">名詞 (n.)</option>
-                        <option value="形容詞">形容詞 (adj.)</option>
-                        <option value="句子">完整句子</option>
-                    </select>
-                </div>
+<!-- 新增/修改單字部分的詞性選單更新 -->
+<div class="form-group" style="flex:1;">
+    <label>單字詞性</label>
+    <select id="in-part">
+        <option value="動詞 (v.)">動詞 (v.)</option>
+        <option value="名詞 (n.)">名詞 (n.)</option>
+        <option value="形容詞 (adj.)">形容詞 (adj.)</option>
+        <option value="完整句子">完整句子</option>
+        <option value="副詞 (adv.)">副詞 (adv.)</option>
+        <option value="介系詞 (prep.)">介系詞 (prep.)</option>
+        <option value="連結詞 (conj.)">連結詞 (conj.)</option>
+        <option value="助動詞 (aux. v.)">助動詞 (aux. v.)</option>
+        <option value="冠詞 (art.)">冠詞 (art.)</option>
+        <option value="數詞 (num.)">數詞 (num.)</option>
+        <option value="感嘆詞 (int.)">感嘆詞 (int.)</option>
+
+    </select>
+</div>
+
                 <div class="form-group" style="flex:1;">
                     <label>選擇分類標籤</label>
                     <div style="display: flex; gap: 4px;">
@@ -212,6 +237,9 @@
         </div>
     </div>
 </div>
+
+<!-- 置中最下方霸氣浮水印 -->
+<div class="footer-signature">開發者：台中最帥老闆J</div>
 
 <script>
     const defaultWords = [{ id: 1, word: "Work", pronounce: "沃克", trans: "工作", status: "new", tag: "生活", part: "動詞", star: false }];
@@ -239,7 +267,6 @@
     let quizTotalCount = 0;
     let quizCorrectCount = 0;
 
-    // 造句系統文法公式庫
     const verbTemplates = [
         { tpl: "I want to {w} every day.", trans: "我想要每天都去{t}。", pron: "愛 望 特 吐 [單字] 艾夫里 爹" },
         { tpl: "Can you help me {w} this?", trans: "你能幫我{t}這個嗎？", pron: "看 优 嘿普 咪 [單字] 茲斯" },
@@ -258,7 +285,6 @@
         { tpl: "Your style is very {w}.", trans: "你的風格真的非常{t}。", pron: "优爾 史太歐 伊茲 飛瑞 [單字]" }
     ];
 
-    // 全自動常見單字詞性字典（用來精準判斷句子中被挖空的那個字是什麼詞性）
     const commonWordsDict = {
         "work": "動詞/名詞", "like": "動詞", "want": "動詞", "need": "動詞", "help": "動詞", "buy": "動詞", "go": "動詞", "see": "動詞", "know": "動詞",
         "favorite": "形容詞", "wonderful": "形容詞", "perfect": "形容詞", "good": "形容詞", "great": "形容詞", "beautiful": "形容詞", "important": "形容詞",
@@ -268,6 +294,18 @@
     function saveToStorage() { 
         localStorage.setItem('gm_words_v3', JSON.stringify(words)); 
         localStorage.setItem('gm_tags_v3', JSON.stringify(tagTypes));
+    }
+
+    // 中間空耳直接編輯並即時同步修改至資料庫核心
+    function updatePronounceDirect(mode, newPron) {
+        let activeObj = (mode === 'review') ? currentWord : currentQuizWord;
+        if(!activeObj) return;
+        let target = words.find(w => w.id === activeObj.id);
+        if(target) {
+            target.pronounce = newPron.trim();
+            saveToStorage();
+            showToast("空耳同步修改成功！");
+        }
     }
 
     function speakText(elementId) {
@@ -338,12 +376,13 @@
         
         let poolTemplates = verbTemplates;
         if(p === "名詞") poolTemplates = nounTemplates;
+        if(p === "代名詞") poolTemplates = PronounTemplates;
         if(p === "形容詞") poolTemplates = adjTemplates;
         if(p === "句子") {
             let finalS = `I know that: ${randomWordObj.word.toLowerCase()}`;
             document.getElementById('gen-sentence-text').innerText = finalS;
             document.getElementById('gen-trans-text').innerText = `我知道這個說法：${randomWordObj.trans}`;
-            document.getElementById('gen-pronounce-text').innerText = `愛 捏 德特 + (${randomWordObj.pronounce || '原本空耳'})`;
+            document.getElementById('gen-pronounce-text').value = `愛 捏 德特 + (${randomWordObj.pronounce || '原本空耳'})`;
             showSentenceActionUI(finalS); return;
         }
 
@@ -356,7 +395,7 @@
 
         document.getElementById('gen-sentence-text').innerText = finalStr;
         document.getElementById('gen-trans-text').innerText = finalTransStr;
-        document.getElementById('gen-pronounce-text').innerText = finalPronounceStr;
+        document.getElementById('gen-pronounce-text').value = finalPronounceStr;
         showSentenceActionUI(finalStr);
     }
 
@@ -369,7 +408,7 @@
     function addGeneratedToPool() {
         const wordStr = document.getElementById('gen-sentence-text').innerText;
         const transStr = document.getElementById('gen-trans-text').innerText;
-        const pronStr = document.getElementById('gen-pronounce-text').innerText;
+        const pronStr = document.getElementById('gen-pronounce-text').value;
 
         if(!wordStr || wordStr.includes("點擊")) return;
         if(words.some(w => w.word.toLowerCase() === wordStr.toLowerCase())) { alert("這句已經儲存過囉！"); return; }
@@ -380,7 +419,7 @@
         setTimeout(() => { switchView('review'); }, 600);
     }
 
-    // --- 分類選單控制 ---
+    // --- 分類與標籤控制 ---
     function updateTagSelectOptions() {
         const select = document.getElementById('in-tag'); select.innerHTML = '';
         tagTypes.forEach(t => {
@@ -397,6 +436,7 @@
         }
     }
 
+    // --- 篩選列核心邏輯 ---
     function renderFilterBar(type) {
         const bar = document.getElementById(type === 'review' ? 'review-filter-bar' : 'list-filter-bar');
         const currentSelected = type === 'review' ? currentReviewFilter : currentListFilter;
@@ -446,13 +486,13 @@
         if (pool.length === 0 && words.length > 0) buildPool();
         if (pool.length === 0) { 
             document.getElementById('card-word').innerText = "此分類空空的，快去新增吧！"; 
-            document.getElementById('card-pronounce').innerText = "-"; document.getElementById('card-trans').innerText = "-"; 
+            document.getElementById('card-pronounce').value = "-"; document.getElementById('card-trans').innerText = "-"; 
             document.getElementById('card-tag').innerText = "-"; document.getElementById('card-part').innerText = "-";
             currentWord = null; return; 
         }
         currentWord = pool.shift();
         document.getElementById('card-word').innerText = currentWord.word;
-        document.getElementById('card-pronounce').innerText = currentWord.pronounce || "未填寫";
+        document.getElementById('card-pronounce').value = currentWord.pronounce || "未填寫";
         document.getElementById('card-trans').innerText = currentWord.trans;
         document.getElementById('card-tag').innerText = currentWord.tag || "生活";
         document.getElementById('card-part').innerText = currentWord.part || "動詞";
@@ -466,7 +506,7 @@
         nextCard();
     }
 
-    // --- 智慧測驗模式（精準空格詞性判定核心） ---
+    // --- 智慧測驗模式 ---
     function buildQuizPool() {
         quizPool = []; words.forEach(w => { quizPool.push({...w}); });
         quizPool.sort(() => Math.random() - 0.5); updateQuizStats();
@@ -479,26 +519,22 @@
     function generateQuestionAndHint(wordObj) {
         let str = wordObj.word.trim();
         
-        // 1. 如果它是句子（內容包含空格）
         if (str.includes(" ")) {
             let wordsArr = str.split(/\s+/);
             let randomIndex = Math.floor(Math.random() * wordsArr.length);
             let rawAnswer = wordsArr[randomIndex];
             
-            // 清理掉標點符號當作正確答案
             currentQuizAnswer = rawAnswer.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"");
             wordsArr[randomIndex] = "_______";
             
-            // 【核心修正】：去字典查被挖空的這「一整個單字」到底是名詞、動詞還是形容詞
             let lowerAns = currentQuizAnswer.toLowerCase();
-            let exactPart = commonWordsDict[lowerAns] || "句子中的單字";
+            let exactPart = commonWordsDict[lowerAns] || "單字";
             
-            // 渲染提示：直接精準顯示被挖空字的詞性，絕不誤導！
-            document.getElementById('quiz-part-hint').innerText = `這個「空格」要填寫的是：${exactPart} (${wordObj.tag})`;
+            // 圖三修正：移除 (生活) 清單標籤後贅詞，保持絕對乾淨
+            document.getElementById('quiz-part-hint').innerText = `💡 這個「空格」要填寫的是：${exactPart}`;
             return wordsArr.join(" ");
             
         } else {
-            // 2. 如果原本就是單字
             if(str.length <= 1) { currentQuizAnswer = str; return "_"; }
             let randomIndex = Math.floor(Math.random() * str.length);
             currentQuizAnswer = str[randomIndex];
@@ -506,8 +542,8 @@
             let charArray = str.split("");
             charArray[randomIndex] = "_";
             
-            // 渲染提示：它是單字，直接抓你當初設定的詞性
-            document.getElementById('quiz-part-hint').innerText = `這個「字母」要填寫的是：${wordObj.part || '單字'} 中的字母 (${wordObj.tag})`;
+            // 圖三修正：移除 (生活) 清單標籤後贅詞
+            document.getElementById('quiz-part-hint').innerText = `💡 這個「字母」要填寫的是：${wordObj.part || '單字'} 中的字母`;
             return charArray.join("");
         }
     }
@@ -519,9 +555,8 @@
         
         currentQuizWord = quizPool.shift();
         document.getElementById('quiz-trans').innerText = currentQuizWord.trans;
-        document.getElementById('quiz-pronounce').innerText = currentQuizWord.pronounce || "無空耳提示";
+        document.getElementById('quiz-pronounce').value = currentQuizWord.pronounce || "無空耳提示";
         
-        // 產生題目，並在函式內同步判定被挖空處的詞性提示
         document.getElementById('quiz-question').innerText = generateQuestionAndHint(currentQuizWord);
         updateQuizStats();
     }
@@ -645,6 +680,7 @@
         switchView('add');
     }
 
+    // 防誤觸刪除
     function deleteWord(id) {
         if (confirm('確定要刪除這個單字嗎？')) {
             words = words.filter(w => w.id !== id); saveToStorage(); renderList(); renderFilterBar('list'); showToast("已刪除");
