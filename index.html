@@ -114,7 +114,6 @@
             <div class="stats" id="quiz-score-text" style="color: #2e7d32; margin-top: 2px;">本日戰績：0 答對 / 0 總題</div>
         </div>
         <div class="flashcard">
-            <!-- 詞性提示專區，防止搞混 -->
             <div class="card-row" style="background: #fff8e1; border-color: #ffe082;">
                 <div class="label-text" style="color:#b78103;">💡 詞性與分類提示</div>
                 <div style="font-weight: bold; font-size: 16px; color:#b78103;" id="quiz-part-hint">要填寫的是：動詞 (生活)</div>
@@ -141,7 +140,7 @@
 
     <!-- 3. AI 智慧造句模式 -->
     <div id="view-sentence" class="sentence-view hidden">
-        <div class="stats" style="text-align: center;">💡 系統會自動根據核心單字的詞性，產出常規道地句型</div>
+        <div class="stats" style="text-align: center;">💡 系統會根據你庫存裡的詞性，隨機產出道地常規生活句型</div>
         <div class="flashcard">
             <div class="card-row">
                 <div class="label-text">生成的常規句子 (Auto Sentence)</div>
@@ -178,7 +177,6 @@
             <div class="form-group"><label>第三個框：中文意思</label><input type="text" id="in-trans" placeholder="例如: 工作" autocomplete="off"></div>
             
             <div style="display: flex; gap: 8px; width:100%;">
-                <!-- 詞性選單 -->
                 <div class="form-group" style="flex:1;">
                     <label>單字詞性</label>
                     <select id="in-part">
@@ -188,7 +186,6 @@
                         <option value="句子">完整句子</option>
                     </select>
                 </div>
-                <!-- 分類標籤 -->
                 <div class="form-group" style="flex:1;">
                     <label>選擇分類標籤</label>
                     <div style="display: flex; gap: 4px;">
@@ -216,13 +213,14 @@
 </div>
 
 <script>
+    // 預設核心數據調整：預設標籤只留「生活」，其餘使用者點+自行新增
     const defaultWords = [{ id: 1, word: "Work", pronounce: "沃克", trans: "工作", status: "new", tag: "生活", part: "動詞", star: false }];
     const defaultTags = ["生活"];
     
     let words = JSON.parse(localStorage.getItem('gm_words_v3')) || defaultWords;
     let tagTypes = JSON.parse(localStorage.getItem('gm_tags_v3')) || defaultTags;
     
-    // 向下相容檢查
+    // 資料結構向下相容安全升級
     words.forEach(w => { 
         if(!w.tag) w.tag = "生活"; 
         if(!w.part) w.part = w.word.includes(" ") ? "句子" : "動詞";
@@ -242,7 +240,7 @@
     let quizTotalCount = 0;
     let quizCorrectCount = 0;
 
-    // 常規造句樣板公式庫
+    // 依照詞性配置的道地常規生活造句句型庫
     const verbTemplates = [
         { tpl: "I want to {w} every day.", trans: "我想要每天都去{t}。", pron: "愛 望 特 吐 [單字] 艾夫里 爹" },
         { tpl: "Can you help me {w} this?", trans: "你能幫我{t}這個嗎？", pron: "看 优 嘿普 咪 [單字] 茲斯" },
@@ -330,10 +328,11 @@
         }
     }
 
-    // --- 智慧常規造句發動引擎 ---
+    // --- 智慧造句（智慧舉例版：完美支援單一字、自動配對發音/空耳/中文） ---
     function generateSmartSentence() {
         if(words.length < 1) { alert("字庫太少囉，先去新增一些單字吧！"); return; }
 
+        // 任意隨機抽一個核心大魔王單字
         let randomWordObj = words[Math.floor(Math.random() * words.length)];
         let p = randomWordObj.part || "動詞";
         
@@ -341,6 +340,7 @@
         if(p === "名詞") poolTemplates = nounTemplates;
         if(p === "形容詞") poolTemplates = adjTemplates;
         if(p === "句子") {
+            // 如果原本就是句子，直接拿他的內容包裝，不硬塞短樣板
             let finalS = `I know that: ${randomWordObj.word.toLowerCase()}`;
             document.getElementById('gen-sentence-text').innerText = finalS;
             document.getElementById('gen-trans-text').innerText = `我知道這個說法：${randomWordObj.trans}`;
@@ -348,13 +348,16 @@
             showSentenceActionUI(finalS); return;
         }
 
+        // 隨機抽選文法公式樣板
         let selectedTpl = poolTemplates[Math.floor(Math.random() * poolTemplates.length)];
+        
         let finalStr = selectedTpl.tpl.replace("{w}", randomWordObj.word.toLowerCase());
-        finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1);
+        finalStr = finalStr.charAt(0).toUpperCase() + finalStr.slice(1); // 首字母大寫修正
 
         let finalTransStr = selectedTpl.trans.replace("{t}", randomWordObj.trans);
         let finalPronounceStr = selectedTpl.pron.replace("[單字]", randomWordObj.pronounce || randomWordObj.word);
 
+        // 渲染上螢幕
         document.getElementById('gen-sentence-text').innerText = finalStr;
         document.getElementById('gen-trans-text').innerText = finalTransStr;
         document.getElementById('gen-pronounce-text').innerText = finalPronounceStr;
@@ -382,8 +385,8 @@
             pronounce: pronStr,
             trans: transStr,
             status: 'new',
-            tag: "生活", 
-            part: "句子", 
+            tag: "生活", // 預設歸入生活分類
+            part: "句子", // 自動生成句一律標記為句子
             star: false
         };
         
@@ -392,7 +395,7 @@
         setTimeout(() => { switchView('review'); }, 600);
     }
 
-    // --- 篩選與分類渲染 ---
+    // --- 分類與篩選 ---
     function updateTagSelectOptions() {
         const select = document.getElementById('in-tag'); select.innerHTML = '';
         tagTypes.forEach(t => {
@@ -478,7 +481,7 @@
         nextCard();
     }
 
-    // --- 智慧測驗模式 ---
+    // --- 智慧測驗模式（整合詞性大提示） ---
     function buildQuizPool() {
         quizPool = []; words.forEach(w => { quizPool.push({...w}); });
         quizPool.sort(() => Math.random() - 0.5); updateQuizStats();
@@ -515,7 +518,7 @@
         document.getElementById('quiz-trans').innerText = currentQuizWord.trans;
         document.getElementById('quiz-pronounce').innerText = currentQuizWord.pronounce || "無空耳提示";
         
-        // 渲染詞性提示與標籤，拒絕猜錯詞性
+        // 精準秀出詞性與標籤過濾提示，杜絕使用者搞混誤會！
         document.getElementById('quiz-part-hint').innerText = `要填寫的是：${currentQuizWord.part || '單字'} (${currentQuizWord.tag || '生活'})`;
         
         document.getElementById('quiz-question').innerText = generateQuestion(currentQuizWord.word);
@@ -654,6 +657,11 @@
         alert("🎉 備份成功！數據已複製到剪貼簿，請貼到「備忘錄」保存。");
     }
 
+    document.addEventListener("DOMContentLoaded", function() {
+        // 確保初始標籤綁定無誤
+        updateTagSelectOptions();
+    });
+
     function importData() {
         const code = prompt("請貼上備份數據代碼：");
         if(code && code.trim()) {
@@ -673,10 +681,6 @@
         const toast = document.getElementById('toast'); toast.innerText = text; toast.classList.add('show');
         setTimeout(() => { toast.classList.remove('show'); }, 800);
     }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        updateTagSelectOptions();
-    });
 
     switchView('review');
 </script>
