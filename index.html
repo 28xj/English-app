@@ -333,6 +333,7 @@ words.forEach(w=>{if(!w.tag)w.tag="生活";if(!w.part)w.part="名詞";if(w.star=
 // 自動同步預設單字（每次載入靜默合併：補新字+更新標示+清理已知重複，保留學習進度）
 (function autoSyncPreset(){
   try{
+    if(localStorage.getItem('gm_cleared')==='1')return; // 使用者已清空，不自動塞回
     const byId={};words.forEach(w=>{byId[w.id]=w;});
     PRESET_DATA.words.forEach(pw=>{
       const ex=byId[pw.id];
@@ -535,6 +536,7 @@ function submitDevPw(){
 }
 function closeDevPanel(){const p=document.getElementById('dev-panel');if(p)p.remove();}
 function syncPresetWords(){
+  localStorage.removeItem('gm_cleared'); // 手動同步＝想要單字，解除清空鎖
   // 同步預設資料：用 id 比對更新已存在的（中文/詞性/空耳/標籤），用文字比對補入新字，並移除預設已刪除的重複字
   const byId={};words.forEach(w=>{byId[w.id]=w;});
   const presetIds=new Set(PRESET_DATA.words.map(p=>p.id));
@@ -574,7 +576,7 @@ function resetGameConfirm(){
     +'<div style="color:#c9b8e8;font-size:12px;margin-bottom:14px;line-height:1.5;">所有遊戲進度（等級、金幣、武器、造型、寵物、地城層數）都會清空重來。<br>單字資料不會刪除。</div>'
     +'<div style="display:flex;gap:8px;">'
     +'<button onclick="doResetGame()" style="flex:1;background:linear-gradient(135deg,#c0392b,#8a1f15);color:#fff;border:none;padding:11px;border-radius:10px;font-weight:800;cursor:pointer;">確定歸零</button>'
-    +'<button onclick="(function(){var x=document.getElementById(\'reset-confirm\');if(x)x.remove();})()" style="flex:1;background:#2a2038;color:#c9b8e8;border:1px solid #4a3a5a;padding:11px;border-radius:10px;font-weight:700;cursor:pointer;">取消</button>'
+    +'<button onclick="closeResetConfirm()" style="flex:1;background:#2a2038;color:#c9b8e8;border:1px solid #4a3a5a;padding:11px;border-radius:10px;font-weight:700;cursor:pointer;">取消</button>'
     +'</div></div>';
   document.body.appendChild(ov);
 }
@@ -634,7 +636,7 @@ function devJumpFloor(){
     +'<input id="dev-floor" type="text" inputmode="numeric" value="'+game.floor+'" style="width:100%;padding:11px;border:1px solid #4a3a5a;border-radius:10px;background:#241830;color:#fff;font-size:18px;text-align:center;outline:none;box-sizing:border-box;margin-bottom:12px;">'
     +'<div style="display:flex;gap:8px;">'
     +'<button onclick="doDevJump()" style="flex:1;background:linear-gradient(135deg,#5a8a4a,#3a6a2a);color:#fff;border:none;padding:11px;border-radius:10px;font-weight:800;cursor:pointer;">出發</button>'
-    +'<button onclick="(function(){var x=document.getElementById(\'dev-jump\');if(x)x.remove();})()" style="flex:1;background:#2a2038;color:#c9b8e8;border:1px solid #4a3a5a;padding:11px;border-radius:10px;font-weight:700;cursor:pointer;">取消</button>'
+    +'<button onclick="closeDevJump()" style="flex:1;background:#2a2038;color:#c9b8e8;border:1px solid #4a3a5a;padding:11px;border-radius:10px;font-weight:700;cursor:pointer;">取消</button>'
     +'</div></div>';
   document.body.appendChild(p);
   setTimeout(()=>{const i=document.getElementById('dev-floor');if(i){i.focus();i.select();}},100);
@@ -3198,12 +3200,30 @@ function startEdit(id){
   document.getElementById('in-save').innerText='確認修改';
   document.getElementById('add-section').scrollIntoView({behavior:'smooth'});
 }
-function delWord(id){if(confirm('確定刪除？')){words=words.filter(w=>w.id!==id);save();renderList();renderFilter('list');toast('已刪除');}
+function delWord(id){words=words.filter(w=>w.id!==id);save();renderList();renderFilter('list');toast('已刪除');}
 function clearAllWords(){
-  if(!confirm('確定清空全部 '+words.length+' 個單字？此動作無法復原！\n（建議先按備份）'))return;
-  if(!confirm('再次確認：真的要刪掉所有單字嗎？'))return;
-  words=[];save();renderList();renderFilter('list');toast('已清空所有單字');
-}}
+  const ov=document.createElement('div');
+  ov.id='clear-confirm';
+  ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML='<div style="background:#fff;border-radius:16px;padding:20px;width:82%;max-width:300px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4);">'
+    +'<div style="color:#c0392b;font-size:16px;font-weight:800;margin-bottom:8px;">確定清空全部單字？</div>'
+    +'<div style="color:#555;font-size:13px;margin-bottom:14px;line-height:1.5;">會刪掉目前全部 '+words.length+' 個單字，無法復原。<br>建議先用「備份」匯出。</div>'
+    +'<div style="display:flex;gap:8px;">'
+    +'<button onclick="doClearAll()" style="flex:1;background:#c0392b;color:#fff;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;">確定清空</button>'
+    +'<button onclick="closeClearConfirm()" style="flex:1;background:#eee;color:#333;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;">取消</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+}
+function closeClearConfirm(){const x=document.getElementById('clear-confirm');if(x)x.remove();}
+function closeResetConfirm(){const x=document.getElementById('reset-confirm');if(x)x.remove();}
+function closeDevJump(){const x=document.getElementById('dev-jump');if(x)x.remove();}
+function doClearAll(){
+  const x=document.getElementById('clear-confirm');if(x)x.remove();
+  words=[];
+  // 記住使用者清空過，避免自動同步又把預設單字塞回來
+  localStorage.setItem('gm_cleared','1');
+  save();renderList();renderFilter('list');toast('已清空所有單字');
+}
 
 // ===== 分類管理 =====
 function manageTags(){
