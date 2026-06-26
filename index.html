@@ -263,6 +263,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
           </div>
           <div style="font-size:10px;color:var(--muted);margin-bottom:12px;" id="key-hint"></div>
         </div>
+        <button onclick="testAiConnection()" style="width:100%;background:#2563eb;color:#fff;border:none;padding:12px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">🔌 測試連線</button>
+        <div id="ai-test-result" style="font-size:12px;line-height:1.5;margin-bottom:10px;display:none;padding:10px;border-radius:8px;"></div>
         <button onclick="closeAiSettings()" style="width:100%;background:var(--ink);color:#fff;border:none;padding:13px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;">完成</button>
       </div>
     </div>
@@ -320,8 +322,11 @@ const PRESET_DATA = {"words":[{"id":1781898000137,"word":"dark red","pronounce":
 const DEFAULT_TAGS = ["生活","學習","數字","主詞","受詞","所有格"];
 
 function loadPreset(){
+  // 使用者主動清空過 → 永遠不重灌（尊重清空）
+  if(localStorage.getItem('gm_cleared')==='1')return;
   const s=localStorage.getItem('gm_words_v3');
-  if(!s||JSON.parse(s).length<=1){
+  // 只有完全沒資料（第一次安裝）才灌預設；空清單[]不算「沒資料」
+  if(s===null||s===undefined){
     localStorage.setItem('gm_words_v3',JSON.stringify(PRESET_DATA.words));
     localStorage.setItem('gm_tags_v3',JSON.stringify(PRESET_DATA.tagTypes));
   }
@@ -2987,6 +2992,35 @@ function saveAiSettings(){
   updateKeyHint(provider);
 }
 function loadAiSettings(){}
+async function testAiConnection(){
+  saveAiSettings(); // 先存目前選的與貼的
+  const box=document.getElementById('ai-test-result');
+  const provider=document.getElementById('ai-provider').value;
+  const key=document.getElementById('api-key').value.trim();
+  const show=(msg,ok)=>{box.style.display='block';box.style.background=ok?'#e7f7ec':'#fde8e8';box.style.color=ok?'#176b3a':'#a01818';box.innerHTML=msg;};
+  if(provider==='template'){show('目前選的是「內建模板」，不需要金鑰。要用 AI 請選 Gemini 或 Claude。',false);return;}
+  if(!key){show('沒有讀到金鑰，請貼上後再測一次。',false);return;}
+  show('測試中…請稍候',true);
+  try{
+    if(provider==='gemini'){
+      if(!(key.startsWith('AIza')||key.startsWith('AQ.'))){show('金鑰格式不像 Gemini（要 AQ. 或 AIza 開頭）。你貼的開頭是：<b>'+key.slice(0,4)+'</b>',false);return;}
+      const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{parts:[{text:'Say OK'}]}]})});
+      const data=await res.json();
+      if(data.error){show('❌ Gemini 回報錯誤：<br><b>'+(data.error.message||'').slice(0,120)+'</b>',false);return;}
+      const t=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+      if(t){show('✅ 連線成功！Gemini 正常回應了。<br>現在可以正常生成例句。',true);}
+      else{show('⚠️ 有回應但格式怪怪的，再試一次或換個單字。',false);}
+    }else if(provider==='claude'){
+      if(!key.startsWith('sk-ant')){show('Claude 金鑰要 sk-ant 開頭。你貼的開頭是：<b>'+key.slice(0,6)+'</b>',false);return;}
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'Say OK'}]})});
+      const data=await res.json();
+      if(data.error){show('❌ Claude 回報錯誤：<br><b>'+(data.error.message||'').slice(0,120)+'</b>',false);return;}
+      show('✅ 連線成功！Claude 正常回應了。',true);
+    }
+  }catch(err){
+    show('❌ 連線失敗：<br><b>'+(err.message||err).toString().slice(0,120)+'</b><br>（可能是網路、或瀏覽器擋了跨網域請求）',false);
+  }
+}
 function updateKeyHint(provider){
   const hint=document.getElementById('key-hint');
   const label=document.getElementById('key-label');
@@ -2999,7 +3033,7 @@ function updateKeyHint(provider){
     hint.innerHTML='輸入 <b>sk-ant-...</b> 開頭的 Claude API Key';
   }else{
     if(label)label.innerText='Google Key';
-    hint.innerHTML='輸入 <b>AIza...</b> 開頭的 Gemini API Key（有免費額度）';
+    hint.innerHTML='貼上 <b>AQ.</b> 或 <b>AIza</b> 開頭的 Gemini API Key（有免費額度）';
   }
 }
 const _aiProvEl=document.getElementById('ai-provider');
@@ -3045,10 +3079,15 @@ async function genSentence(){
   const w=pickable[Math.floor(Math.random()*pickable.length)];
   if(provider==='claude'&&apiKey.startsWith('sk-ant')){
     await genWithClaude(w,apiKey,btn);
-  }else if(provider==='gemini'&&apiKey.startsWith('AIza')){
+  }else if(provider==='gemini'&&(apiKey.startsWith('AIza')||apiKey.startsWith('AQ.'))){
     await genWithGemini(w,apiKey,btn);
   }else{
-    if(provider!=='template')toast('Key 無效，使用內建模板');
+    // 診斷：告訴使用者為什麼掉回模板
+    if(provider==='template'){toast('目前是「內建模板」模式，去設定選 Gemini');}
+    else if(provider==='gemini'&&!apiKey){toast('沒讀到金鑰，請重新貼一次並確認');}
+    else if(provider==='gemini'){toast('金鑰格式不符（要 AQ. 或 AIza 開頭）目前是：'+(apiKey.slice(0,4)||'空'));}
+    else if(provider==='claude'){toast('Claude金鑰要 sk-ant 開頭');}
+    else{toast('使用內建模板');}
     genWithTemplate(w,btn);
   }
 }
@@ -3070,9 +3109,11 @@ async function genWithClaude(w,apiKey,btn){
 async function genWithGemini(w,apiKey,btn){
   try{
     const prompt='You are an English teacher. Create ONE simple sentence using "'+w.word+'" ('+w.part+': '+w.trans+').\nReply ONLY in this format:\nENG: [sentence]\nZH: [Chinese translation]\nPRON: [Chinese phonetic]';
-    const url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+apiKey;
-    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+    // 用 header 帶金鑰（新版 AQ. 與舊版 AIza 都支援）
+    const url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+    const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':apiKey},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
     const data=await res.json();
+    if(data.error){toast('Gemini錯誤：'+(data.error.message||'').slice(0,40));genWithTemplate(w,btn);return;}
     const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
     const engM=text.match(/ENG:\s*(.+)/);const zhM=text.match(/ZH:\s*(.+)/);const pronM=text.match(/PRON:\s*(.+)/);
     if(engM&&zhM){showSentence(w,engM[1].trim(),zhM[1].trim(),pronM?pronM[1].trim():'',btn,'Gemini');}
