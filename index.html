@@ -3261,8 +3261,10 @@ function closeDevJump(){const x=document.getElementById('dev-jump');if(x)x.remov
 function doClearAll(){
   const x=document.getElementById('clear-confirm');if(x)x.remove();
   words=[];
-  // 記住使用者清空過，避免自動同步又把預設單字塞回來
+  // 記住使用者清空過，避免自動同步/loadPreset 又把預設單字塞回來
   localStorage.setItem('gm_cleared','1');
+  // 直接寫入空清單到記憶體（雙重保險）
+  localStorage.setItem('gm_words_v3','[]');
   save();renderList();renderFilter('list');toast('已清空所有單字');
 }
 
